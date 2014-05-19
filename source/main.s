@@ -52,7 +52,7 @@
                 timespan .req r2
 
                 frameTime .req r3
-                LDR frameTime, =2000000
+                LDR frameTime, =1000
 
                 timerAddress .req r4
                 LDR timerAddress, =TimerAddress

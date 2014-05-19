@@ -9,7 +9,7 @@
     .align 4
 
     .globl FrameBufferInfo
-    ///*
+    /*
     FrameBufferInfo:    .int 1920   // #0 Width
                         .int 1080   // #4 Height
                         .int 1920   // #8 Virtual Width
@@ -20,8 +20,8 @@
                         .int 0      // #28 Y Margin
                         .int 0      // #32 Framebuffer pointer. Set by the GPU.
                         .int 0      // #36 Framebuffer size, set by the GPU.
-    //*/
-    /*
+    */
+    ///*
     FrameBufferInfo:    .int 1280   // #0 Width
                         .int 1024   // #4 Height
                         .int 1280   // #8 Virtual Width
@@ -32,7 +32,7 @@
                         .int 0      // #28 Y Margin
                         .int 0      // #32 Framebuffer pointer. Set by the GPU.
                         .int 0      // #36 Framebuffer size, set by the GPU.
-    */
+    //*/
 
     .globl FramebufferInfoAddress
     FramebufferInfoAddress: .int 0
@@ -111,22 +111,26 @@
 
     .globl BallPositionX
     //BallPositionX:  .int 660 - 19             // lower and upper left
-    BallPositionX:  .int 660 + 400 + 19         // lower and upper right
+    BallPositionX:  .int 340 + 400 + 19         // lower and upper right
+    //BallPositionX:  .int 660 + 400 + 19         // lower and upper right
     //BallPositionX:  .int 340 - 19
     //BallPositionX:  .int 740 + 19
 
     .globl BallPositionY
     //BallPositionY:  .int 40
     //BallPositionY:  .int 1024 - 30
-    BallPositionY:  .int 1080 - 50              // lower right : 50, 49, 48
+    BallPositionY:  .int 1025 - 50              // lower right : 50, 49, 48
+    //BallPositionY:  .int 1080 - 50              // lower right : 50, 49, 48
 
     .globl PreviousBallPositionX
     //PreviousBallPositionX:  .int 660 - 19     // lower and upper left
-    PreviousBallPositionX:  .int 660 + 400 + 19 // lower and upper right
+    PreviousBallPositionX:  .int 340 + 400 + 19 // lower and upper right
+    //PreviousBallPositionX:  .int 660 + 400 + 19 // lower and upper right
     //PreviousBallPositionX:  .int 340 - 19
     //PreviousBallPositionX:  .int 740 + 19
 
     .globl PreviousBallPositionY
     //PreviousBallPositionY:  .int 40           // 38, 39, 40? upper right?
     //PreviousBallPositionY:  .int 1024 - 30
-    PreviousBallPositionY:  .int 1080 - 49      // lower right : 50, 49, 48
+    PreviousBallPositionY:  .int 1024 - 49      // lower right : 50, 49, 48
+    //PreviousBallPositionY:  .int 1080 - 49      // lower right : 50, 49, 48
