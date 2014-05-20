@@ -8,74 +8,86 @@
 .globl DetectCollisions
 DetectCollisions:   PUSH { r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, lr }
 
-    x .req r0
-    LDR x, =BallPositionX
-    LDR x, [x]
+    paddleWidth .req r0
+    LDR paddleWidth, =PaddleWidth
+    LDR paddleWidth, [paddleWidth]
 
-    y .req r1
-    LDR y, =BallPositionY
-    LDR y, [y]
+    paddleHeight .req r1
+    LDR paddleHeight, =PaddleHeight
+    LDR paddleHeight, [paddleHeight]
 
-    ballDirectionX .req r2
+    ballWidth .req r2
+    LDR ballWidth, =BallWidth
+    LDR ballWidth, [ballWidth]
+
+    ballDirectionX .req r3
     LDR ballDirectionX, =BallDirectionX
     LDR ballDirectionX, [ballDirectionX]
-
-    newBallDirectionX .req r3
-    MOV newBallDirectionX, ballDirectionX
 
     ballDirectionY .req r4
     LDR ballDirectionY, =BallDirectionY
     LDR ballDirectionY, [ballDirectionY]
 
-    newBallDirectionY .req r5
-    MOV newBallDirectionY, ballDirectionY
-
-    tableRightBorder .req r6
+    tableRightBorder .req r5
     LDR tableRightBorder, =TableRightBorder
     LDR tableRightBorder, [tableRightBorder]
 
-    tableBottomBorder .req r7
+    tableBottomBorder .req r6
     LDR tableBottomBorder, =TableBottomBorder
     LDR tableBottomBorder, [tableBottomBorder]
 
-    paddleWidth .req r8
-    LDR paddleWidth, =PaddleWidth
-    LDR paddleWidth, [paddleWidth]
+    topPaddleLocationLeftCornerX .req r7
+    LDR topPaddleLocationLeftCornerX, =TopPaddleLocationX
+    LDR topPaddleLocationLeftCornerX, [topPaddleLocationLeftCornerX]
+    SUB topPaddleLocationLeftCornerX, #1
+    SUB topPaddleLocationLeftCornerX, ballWidth
 
-    paddleHeight .req r9
-    LDR paddleHeight, =PaddleHeight
-    LDR paddleHeight, [paddleHeight]
+    topPaddleLocationRightCornerX .req r8
+    ADD topPaddleLocationRightCornerX, topPaddleLocationLeftCornerX, #1
+    ADD topPaddleLocationRightCornerX, paddleWidth
+    ADD topPaddleLocationRightCornerX, ballWidth
 
-    ballWidth .req r12
-    LDR ballWidth, =BallWidth
-    LDR ballWidth, [ballWidth]
+    topPaddleLocationY .req r9
+    LSL topPaddleLocationY, paddleHeight, #1
+    ADD topPaddleLocationY, #1
 
-    topPaddleLocationX .req r10
-    LDR topPaddleLocationX, =TopPaddleLocationX
-    LDR topPaddleLocationX, [topPaddleLocationX]
-    SUB topPaddleLocationX, #1                          // Because of unsigned higher comparison (HI). It's >, not >=
-    SUB topPaddleLocationX, ballWidth
+    bottomPaddleLocationLeftCornerX .req r10
+    LDR bottomPaddleLocationLeftCornerX, =BottomPaddleLocationX
+    LDR bottomPaddleLocationLeftCornerX, [bottomPaddleLocationLeftCornerX]
+    SUB bottomPaddleLocationLeftCornerX, #1
+    SUB bottomPaddleLocationLeftCornerX, ballWidth
 
-    bottomPaddleLocationX .req r11
-    LDR bottomPaddleLocationX, =BottomPaddleLocationX
-    LDR bottomPaddleLocationX, [bottomPaddleLocationX]
-    SUB bottomPaddleLocationX, #1                       // Because of unsigned higher comparison (HI). It's >, not >=
-    SUB bottomPaddleLocationX, ballWidth                // Ball's collision surface is its whole width
+    bottomPaddleLocationRightCornerX .req r11
+    ADD bottomPaddleLocationRightCornerX, bottomPaddleLocationLeftCornerX, #1
+    ADD bottomPaddleLocationRightCornerX, paddleWidth
+    ADD bottomPaddleLocationRightCornerX, ballWidth
+
+    bottomPaddleLocationY .req r12
+    SUB bottomPaddleLocationY, tableBottomBorder, paddleHeight, LSL #1
+    ADD bottomPaddleLocationY, #1
+
+    .unreq paddleWidth
+    x .req r0
+    LDR x, =BallPositionX
+    LDR x, [x]
+
+    .unreq paddleHeight
+    y .req r1
+    LDR y, =BallPositionY
+    LDR y, [y]
+
+    .unreq ballWidth
+    ballDirection .req r2
 
     topHit:
 
         CMP ballDirectionY, #0
             BNE bottomHit
-            CMP x, topPaddleLocationX
+            CMP x, topPaddleLocationLeftCornerX
                 BLS bottomOfTopPaddleMissed
-                ADD topPaddleLocationX, #1              // Because of unsigned lower-or-equal comparison (LS). It's <=
-                ADD topPaddleLocationX, paddleWidth
-                ADD topPaddleLocationX, ballWidth
-                CMP x, topPaddleLocationX
+                CMP x, topPaddleLocationRightCornerX
                     BHI bottomOfTopPaddleMissed
-                    LSL paddleHeight, #1
-                    ADD paddleHeight, #1
-                    CMP y, paddleHeight
+                    CMP y, topPaddleLocationY
                     B revertUpToDown
 
         bottomOfTopPaddleMissed:
@@ -89,19 +101,12 @@ DetectCollisions:   PUSH { r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12
     bottomHit:
 
         CMP ballDirectionY, #1
-            BNE notGoingDown
-            CMP x, bottomPaddleLocationX
+            BNE rightBorderHit
+            CMP x, bottomPaddleLocationLeftCornerX
                 BLS topOfBottomPaddleMissed
-                ADD bottomPaddleLocationX, #1                                   // Because of unsigned lower-or-equal comparison (LS). It's <=
-                ADD bottomPaddleLocationX, paddleWidth
-                ADD bottomPaddleLocationX, ballWidth
-                CMP x, bottomPaddleLocationX
+                CMP x, bottomPaddleLocationRightCornerX
                     BHI topOfBottomPaddleMissed
-                    LDR paddleHeight, =PaddleHeight
-                    LDR paddleHeight, [paddleHeight]
-                    SUB paddleHeight, tableBottomBorder, paddleHeight, LSL #1
-                    ADD paddleHeight, #1
-                    CMP y, paddleHeight
+                    CMP y, bottomPaddleLocationY
                     B revertDownToUp
 
         topOfBottomPaddleMissed:
@@ -112,49 +117,21 @@ DetectCollisions:   PUSH { r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12
 
             MOVEQ ballDirectionY, #0
 
-        notGoingDown:
-
-    LDR paddleHeight, =PaddleHeight
-    LDR paddleHeight, [paddleHeight]
-
-    .unreq topPaddleLocationX
-    topPaddleLocationY .req r10
-    LDR topPaddleLocationY, =PaddleHeight
-    LDR topPaddleLocationY, [topPaddleLocationY]
-    LSL topPaddleLocationY, #1
-    ADD topPaddleLocationY, #1
-
-    .unreq bottomPaddleLocationX
-    bottomPaddleLocationY .req r11
-    LDR bottomPaddleLocationY, =PaddleHeight
-    LDR bottomPaddleLocationY, [bottomPaddleLocationY]
-    LSL bottomPaddleLocationY, #1
-    SUB bottomPaddleLocationY, tableBottomBorder, paddleHeight, LSL #1
-
     rightBorderHit:
 
         CMP ballDirectionX, #1
-            BNE notGoingRight
+            BNE leftBorderHit
             CMP y, topPaddleLocationY
                 BHI leftSideOfTopPaddleMissed
-                .unreq topPaddleLocationY
-                topPaddleLocationX .req r10
-                LDR topPaddleLocationX, =TopPaddleLocationX
-                LDR topPaddleLocationX, [topPaddleLocationX]
-                SUB topPaddleLocationX, ballWidth
-                CMP x, topPaddleLocationX
+                CMP x, topPaddleLocationLeftCornerX
                     BNE leftSideOfTopPaddleMissed
                     B revertRightToLeft
+
         leftSideOfTopPaddleMissed:
 
             CMP y, bottomPaddleLocationY
                 BLS leftSideOfBothPaddlesMissed
-                .unreq bottomPaddleLocationY
-                bottomPaddleLocationX .req r10
-                LDR bottomPaddleLocationX, =BottomPaddleLocationX
-                LDR bottomPaddleLocationX, [bottomPaddleLocationX]
-                SUB bottomPaddleLocationX, ballWidth
-                CMP x, bottomPaddleLocationX
+                CMP x, bottomPaddleLocationLeftCornerX
                     BNE leftSideOfBothPaddlesMissed
                     B revertRightToLeft
 
@@ -166,46 +143,21 @@ DetectCollisions:   PUSH { r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12
 
             MOVEQ ballDirectionX, #0
 
-        notGoingRight:
-
-    .unreq topPaddleLocationX
-    topPaddleLocationY .req r10
-    LDR topPaddleLocationY, =PaddleHeight
-    LDR topPaddleLocationY, [topPaddleLocationY]
-    LSL topPaddleLocationY, #1
-    ADD topPaddleLocationY, #1
-
-    .unreq bottomPaddleLocationX
-    bottomPaddleLocationY .req r11
-    LDR bottomPaddleLocationY, =PaddleHeight
-    LDR bottomPaddleLocationY, [bottomPaddleLocationY]
-    LSL bottomPaddleLocationY, #1
-    SUB bottomPaddleLocationY, tableBottomBorder, paddleHeight, LSL #1
-
     leftBorderHit:
 
         CMP ballDirectionX, #0
             BNE notGoingLeft
             CMP y, topPaddleLocationY
                 BHI rightSideOfTopPaddleMissed
-                .unreq topPaddleLocationY
-                topPaddleLocationX .req r10
-                LDR topPaddleLocationX, =TopPaddleLocationX
-                LDR topPaddleLocationX, [topPaddleLocationX]
-                ADD topPaddleLocationX, paddleWidth
-                CMP x, topPaddleLocationX
+                CMP x, topPaddleLocationRightCornerX
                     BNE rightSideOfTopPaddleMissed
                     B revertLeftToRight
+
         rightSideOfTopPaddleMissed:
 
             CMP y, bottomPaddleLocationY
                 BLS rightSideOfBothPaddlesMissed
-                .unreq bottomPaddleLocationY
-                bottomPaddleLocationX .req r10
-                LDR bottomPaddleLocationX, =BottomPaddleLocationX
-                LDR bottomPaddleLocationX, [bottomPaddleLocationX]
-                ADD bottomPaddleLocationX, paddleWidth
-                CMP x, bottomPaddleLocationX
+                CMP x, bottomPaddleLocationRightCornerX
                     BNE rightSideOfBothPaddlesMissed
                     B revertLeftToRight
 
@@ -227,35 +179,33 @@ DetectCollisions:   PUSH { r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12
     ADDEQ x, #1
     SUBNE x, #1
 
-    CMP ballDirectionX, newBallDirectionX
-    LDRNE newBallDirectionX, =BallDirectionX
-    STRNE ballDirectionX, [newBallDirectionX]
+    LDR ballDirection, =BallDirectionX
+    STR ballDirectionX, [ballDirection]
 
-    CMP ballDirectionY, newBallDirectionY
-    LDRNE newBallDirectionY, =BallDirectionY
-    STRNE ballDirectionY, [newBallDirectionY]
+    LDR ballDirection, =BallDirectionY
+    STR ballDirectionY, [ballDirection]
 
-    .unreq ballDirectionX
-    newBallPositionX .req r2
-    LDR newBallPositionX, =BallPositionX
-    STR x, [newBallPositionX]
+    .unreq ballDirection
+    newBallPosition .req r2
 
-    .unreq newBallDirectionX
-    newBallPositionY .req r3
-    LDR newBallPositionY, =BallPositionY
-    STR y, [newBallPositionY]
+    LDR newBallPosition, =BallPositionX
+    STR x, [newBallPosition]
+
+    LDR newBallPosition, =BallPositionY
+    STR y, [newBallPosition]
 
     .unreq x
     .unreq y
-    .unreq newBallPositionX
-    .unreq newBallPositionY
+    .unreq newBallPosition
+    .unreq ballDirectionX
     .unreq ballDirectionY
-    .unreq newBallDirectionY
     .unreq tableRightBorder
     .unreq tableBottomBorder
-    .unreq topPaddleLocationX
-    .unreq bottomPaddleLocationX
-    .unreq paddleWidth
-    .unreq paddleHeight
+    .unreq topPaddleLocationLeftCornerX
+    .unreq topPaddleLocationRightCornerX
+    .unreq topPaddleLocationY
+    .unreq bottomPaddleLocationLeftCornerX
+    .unreq bottomPaddleLocationRightCornerX
+    .unreq bottomPaddleLocationY
 
 POP { r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, pc }
