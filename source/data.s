@@ -53,7 +53,7 @@
     WhiteColour: .int 0b1111111111111111
 
     .globl BlackColour
-    BlackColour: .int 0b0
+    BlackColour: .int 0
 
     .globl ForegoundColour
     ForegoundColour:    .int 0

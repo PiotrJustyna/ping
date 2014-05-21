@@ -1,3 +1,9 @@
+/***********************************************/
+/* This file contains GPU-related subroutines. */
+/*                                             */
+/* Author: Piotr Justyna                       */
+/***********************************************/
+
 .section .text
 
     .globl InitialiseFrameBuffer
