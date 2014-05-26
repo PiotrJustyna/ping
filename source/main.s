@@ -24,7 +24,7 @@
 
             // Setting foreground colour
                 foregroundColourValue .req r0
-                LDR foregroundColourValue, =GrayColour
+                LDR foregroundColourValue, =GreenColour
                 LDR foregroundColourValue, [foregroundColourValue]
 
                 foregroundColourAddress .req r1
@@ -58,7 +58,7 @@
                 timespan .req r2
 
                 frameTime .req r3
-                LDR frameTime, =1000
+                LDR frameTime, =5000
 
                 timerAddress .req r4
                 LDR timerAddress, =TimerAddress
@@ -71,17 +71,17 @@
                 currentTimestamp .req r6
                 xSafeCopy .req r7
 
-                BL DrawFrame
+                BL SetGPIO
                 BL DrawTopPaddle
-                BL DrawBottomPaddle
+                BL DrawFrame
 
                 whileTrue:
 
                     BL CaptureStartTimestamp
 
                     BL DrawNet
-                    // BL DrawTopPaddle
-                    // BL DrawBottomPaddle
+                    BL MoveTopPaddle
+                    BL DrawBottomPaddle
                     BL DrawBall
                     BL DetectCollisions
 

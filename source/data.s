@@ -9,7 +9,7 @@
     .align 4
 
     .globl FrameBufferInfo
-    /*
+    ///*
     FrameBufferInfo:    .int 1920   // #0 Width
                         .int 1080   // #4 Height
                         .int 1920   // #8 Virtual Width
@@ -20,8 +20,8 @@
                         .int 0      // #28 Y Margin
                         .int 0      // #32 Framebuffer pointer. Set by the GPU.
                         .int 0      // #36 Framebuffer size, set by the GPU.
-    */
-    ///*
+    //*/
+    /*
     FrameBufferInfo:    .int 1280   // #0 Width
                         .int 1024   // #4 Height
                         .int 1280   // #8 Virtual Width
@@ -32,7 +32,7 @@
                         .int 0      // #28 Y Margin
                         .int 0      // #32 Framebuffer pointer. Set by the GPU.
                         .int 0      // #36 Framebuffer size, set by the GPU.
-    //*/
+    */
 
     .globl FramebufferInfoAddress
     FramebufferInfoAddress: .int 0
@@ -134,3 +134,6 @@
     //PreviousBallPositionY:  .int 1024 - 30
     PreviousBallPositionY:  .int 1024 - 49      // lower right : 50, 49, 48
     //PreviousBallPositionY:  .int 1080 - 49      // lower right : 50, 49, 48
+
+    .globl GPIOPinLevelsAddress
+    GPIOPinLevelsAddress:   .int 0x20200034

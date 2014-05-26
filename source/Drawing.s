@@ -220,16 +220,16 @@
                     y .req r1
                     SUB y, screenHeight, paddleHeight, LSL #1   // y = screenHeight - (paddleHeight * 2)
 
-                    topPaddleRowLoop:
+                    bottomPaddleRowLoop:
 
-                        topPaddleColumnLoop:
+                        bottomPaddleColumnLoop:
 
                             BL DrawPixel
                             ADD x, #1
                             SUB remainingPaddleWidth, #1
                             CMP remainingPaddleWidth, #0
 
-                        BNE topPaddleColumnLoop
+                        BNE bottomPaddleColumnLoop
 
                         MOV remainingPaddleWidth, paddleWidth
                         SUB x, remainingPaddleWidth
@@ -237,7 +237,7 @@
                         SUB remainingPaddleHeight, #1
                         CMP remainingPaddleHeight, #0
 
-                    BNE topPaddleRowLoop
+                    BNE bottomPaddleRowLoop
 
                     .unreq paddleWidth
                     .unreq paddleHeight
@@ -251,80 +251,6 @@
                     .unreq y
 
                     POP { r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, pc }
-
-    .globl DrawTopPaddle
-    DrawTopPaddle:   PUSH { r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, lr }
-
-                        paddleWidth .req r2
-                        LDR paddleWidth, =PaddleWidth
-                        LDR paddleWidth, [paddleWidth]
-
-                        paddleHeight .req r3
-                        LDR paddleHeight, =PaddleHeight
-                        LDR paddleHeight, [paddleHeight]
-
-                        remainingPaddleWidth .req r4
-                        MOV remainingPaddleWidth, paddleWidth
-
-                        remainingPaddleHeight .req r5
-                        MOV remainingPaddleHeight, paddleHeight
-
-                        screenWidth .req r6
-                        LDR screenWidth, =FrameBufferInfo
-                        LDR screenWidth, [screenWidth, #0]
-
-                        screenHeight .req r7
-                        LDR screenHeight, =FrameBufferInfo
-                        LDR screenHeight, [screenHeight, #4]
-
-                        scoreMargin .req r8
-                        LDR scoreMargin, =ScoreMargin
-                        LDR scoreMargin, [scoreMargin]
-
-                        topPaddleLocationX .req r9
-                        LDR topPaddleLocationX, =TopPaddleLocationX
-
-                        x .req r0
-                        SUB x, screenWidth, scoreMargin
-                        SUB x, paddleWidth
-                        LSR x, #1                       // x = (screenWidth - scoreMargin - paddleWidth) / 2
-
-                        STR x, [topPaddleLocationX]
-
-                        y .req r1
-                        MOV y, paddleHeight, LSL #1     // y = paddleHeight * 2
-
-                        bottomPaddleRowLoop:
-
-                            bottomPaddleColumnLoop:
-
-                                BL DrawPixel
-                                ADD x, #1
-                                SUB remainingPaddleWidth, #1
-                                CMP remainingPaddleWidth, #0
-
-                            BNE bottomPaddleColumnLoop
-
-                            MOV remainingPaddleWidth, paddleWidth
-                            SUB x, remainingPaddleWidth
-                            SUB y, #1
-                            SUB remainingPaddleHeight, #1
-                            CMP remainingPaddleHeight, #0
-
-                        BNE bottomPaddleRowLoop
-
-                        .unreq paddleWidth
-                        .unreq paddleHeight
-                        .unreq remainingPaddleWidth
-                        .unreq remainingPaddleHeight
-                        .unreq screenWidth
-                        .unreq screenHeight
-                        .unreq scoreMargin
-                        .unreq topPaddleLocationX
-                        .unreq x
-                        .unreq y
-
-                        POP { r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, pc }
 
     .globl WipeBall
     WipeBall:   PUSH { r0, r1, r2, r3, r4, r5, lr }
@@ -380,7 +306,7 @@
 
                 SUB y, ballHeight
 
-                LDR foregroundColourValue, =GrayColour
+                LDR foregroundColourValue, =GreenColour
                 LDR foregroundColourValue, [foregroundColourValue]
                 STR foregroundColourValue, [foregroundColourAddress]
 
