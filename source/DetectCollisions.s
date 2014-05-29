@@ -40,11 +40,10 @@
                         topPaddleLocationLeftCornerX .req r7
                         LDR topPaddleLocationLeftCornerX, =TopPaddleLocationX
                         LDR topPaddleLocationLeftCornerX, [topPaddleLocationLeftCornerX]
-                        SUB topPaddleLocationLeftCornerX, #1
                         SUB topPaddleLocationLeftCornerX, ballWidth
 
                         topPaddleLocationRightCornerX .req r8
-                        ADD topPaddleLocationRightCornerX, topPaddleLocationLeftCornerX, #1
+                        MOV topPaddleLocationRightCornerX, topPaddleLocationLeftCornerX
                         ADD topPaddleLocationRightCornerX, paddleWidth
                         ADD topPaddleLocationRightCornerX, ballWidth
 
@@ -55,11 +54,10 @@
                         bottomPaddleLocationLeftCornerX .req r10
                         LDR bottomPaddleLocationLeftCornerX, =BottomPaddleLocationX
                         LDR bottomPaddleLocationLeftCornerX, [bottomPaddleLocationLeftCornerX]
-                        SUB bottomPaddleLocationLeftCornerX, #1
                         SUB bottomPaddleLocationLeftCornerX, ballWidth
 
                         bottomPaddleLocationRightCornerX .req r11
-                        ADD bottomPaddleLocationRightCornerX, bottomPaddleLocationLeftCornerX, #1
+                        MOV bottomPaddleLocationRightCornerX, bottomPaddleLocationLeftCornerX
                         ADD bottomPaddleLocationRightCornerX, paddleWidth
                         ADD bottomPaddleLocationRightCornerX, ballWidth
 

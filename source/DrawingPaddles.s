@@ -76,7 +76,7 @@
                     POP { r0, r1, r2, r3, r4, r5, r6, r7, r8, pc }
 
     .globl MoveTopPaddle
-    MoveTopPaddle:  PUSH { r0, r1, r2, r3, r4, r5, r6, r7, lr }
+    MoveTopPaddle:  PUSH { r0, r1, r2, r3, r4, r5, r6, r7, r8, lr }
 
                     paddleHeight .req r2
                     LDR paddleHeight, =PaddleHeight
@@ -89,81 +89,97 @@
                     LDR paddleWidth, =PaddleWidth
                     LDR paddleWidth, [paddleWidth]
 
-                    remainingPaddleWidth .req r5
-                    MOV remainingPaddleWidth, paddleWidth
-
-                    topPaddleLocationX .req r6
+                    topPaddleLocationX .req r5
                     LDR topPaddleLocationX, =TopPaddleLocationX
+
+                    scoreMargin .req r6
+                    LDR scoreMargin, =ScoreMargin
+                    LDR scoreMargin, [scoreMargin]
+                    ADD scoreMargin, #1
+
+                    screenWidth .req r7
+                    LDR screenWidth, =FrameBufferInfo
+                    LDR screenWidth, [screenWidth, #0]
+                    SUB screenWidth, scoreMargin
+                    SUB screenWidth, paddleWidth
 
                     x .req r0
                     LDR x, [topPaddleLocationX]
 
                     y .req r1
-                    MOV y, paddleHeight, LSL #1     // y = paddleHeight * 2
+                    MOV y, paddleHeight, LSL #1                             // y = paddleHeight * 2
 
-                    pinLevels .req r7
+                    pinLevels .req r8
                     LDR pinLevels, =0x20200034
                     LDR pinLevels, [pinLevels]
-                    LSR pinLevels, #7
-
-                    // Moving Right
-                        TST pinLevels, #1
-                        BNE checkLeftButton
-                        BL WipeLeftSideOfTopPaddle
-                        ADD x, #1
-                        ADD x, paddleWidth
-
-                        leftSideOfTopPaddleRowLoop1:
-
-                            BL DrawPixel
-
-                            SUB y, #1
-                            SUB remainingPaddleHeight, #1
-                            CMP remainingPaddleHeight, #0
-
-                        BNE leftSideOfTopPaddleRowLoop1
-
-                        ADD y, paddleHeight
-                        SUB x, paddleWidth
-                        MOV remainingPaddleHeight, paddleHeight
-                    // <- Moving Right
+                    LSR pinLevels, #7                                       // checking the level of 7th pin (left button)
 
                     // Moving Left
-                        checkLeftButton:
+                        TST pinLevels, #1                               // Is input on pin 7 detected?
+                        BEQ checkRightButton                            // If not, and zero is detected, check the right button (pin 8).
+                            CMP x, #1                                   // Paddle cannot cross the left border.
+                            BEQ endOfButtonChecking                     // If it does, stop it.
+                                BL WipeRightSideOfTopPaddle
+                                SUB x, #1
 
-                            LSR pinLevels, #1
-                            TST pinLevels, #1
-                            BNE endOfButtonChecking
-                            BL WipeRightSideOfTopPaddle
-                            SUB x, #1
+                                leftSideOfTopPaddleRowLoop2:
 
-                            leftSideOfTopPaddleRowLoop2:
+                                    BL DrawPixel
 
-                                BL DrawPixel
+                                    SUB y, #1
+                                    SUB remainingPaddleHeight, #1
+                                    CMP remainingPaddleHeight, #0
 
-                                SUB y, #1
-                                SUB remainingPaddleHeight, #1
-                                CMP remainingPaddleHeight, #0
+                                BNE leftSideOfTopPaddleRowLoop2
 
-                            BNE leftSideOfTopPaddleRowLoop2
-
-                            ADD y, paddleHeight
-                            MOV remainingPaddleHeight, paddleHeight
+                                ADD y, paddleHeight
+                                MOV remainingPaddleHeight, paddleHeight
+                                STR x, [topPaddleLocationX]
+                                BL endOfButtonChecking
                     // <- Moving Left
+
+                    // Moving Right
+                        checkRightButton:
+
+                            LSR pinLevels, #1                                   // Now, checking the 8th pin.
+                            TST pinLevels, #1                                   // Is input on pin 7 detected?
+                            BEQ endOfButtonChecking                             // If not, finish button checking. No more buttons.
+                                CMP x, screenWidth                              // If yes, check one more thing: paddle cannot cross the right border
+                                BEQ endOfButtonChecking                         // If it is crossing the right border, it cannot move further, finish button checking.
+                                    BL WipeLeftSideOfTopPaddle                  // If not, wipe the left side and move right.
+                                    ADD x, #1
+                                    ADD x, paddleWidth
+
+                                    leftSideOfTopPaddleRowLoop1:
+
+                                        BL DrawPixel
+
+                                        SUB y, #1
+                                        SUB remainingPaddleHeight, #1
+                                        CMP remainingPaddleHeight, #0
+
+                                    BNE leftSideOfTopPaddleRowLoop1
+
+                                    ADD y, paddleHeight
+                                    SUB x, paddleWidth
+                                    MOV remainingPaddleHeight, paddleHeight
+                                    STR x, [topPaddleLocationX]
+                                    B endOfButtonChecking
+                    // <- Moving Right
 
                     endOfButtonChecking:
 
-                        STR x, [topPaddleLocationX]
-
                     .unreq paddleWidth
                     .unreq paddleHeight
-                    .unreq remainingPaddleWidth
                     .unreq remainingPaddleHeight
                     .unreq topPaddleLocationX
                     .unreq x
                     .unreq y
+                    .unreq pinLevels
+                    .unreq scoreMargin
+                    .unreq screenWidth
 
-                    POP { r0, r1, r2, r3, r4, r5, r6, r7, pc }
+                    POP { r0, r1, r2, r3, r4, r5, r6, r7, r8, pc }
 
     .globl WipeLeftSideOfTopPaddle
     WipeLeftSideOfTopPaddle:    PUSH { r4, r5, lr }

@@ -50,10 +50,10 @@
 
             // Drawing
                 x .req r0
-                MOV x, #5
+                MOV x, #2
 
                 y .req r1
-                MOV y, #11
+                MOV y, #7
 
                 timespan .req r2
 
@@ -73,6 +73,7 @@
 
                 BL SetGPIO
                 BL DrawTopPaddle
+                //BL MoveTopPaddle
                 BL DrawFrame
 
                 whileTrue:
