@@ -315,7 +315,7 @@
     .globl DrawBall
     DrawBall:   PUSH { r0, r1, r2, r3, r4, r5, lr }
 
-                BL WipeBall
+                BL WipeBall // TODO: For now
 
                 x .req r0
                 LDR x, =BallPositionX

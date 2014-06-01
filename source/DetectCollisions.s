@@ -40,12 +40,14 @@
                         topPaddleLocationLeftCornerX .req r7
                         LDR topPaddleLocationLeftCornerX, =TopPaddleLocationX
                         LDR topPaddleLocationLeftCornerX, [topPaddleLocationLeftCornerX]
-                        SUB topPaddleLocationLeftCornerX, ballWidth
+                        CMP topPaddleLocationLeftCornerX, ballWidth
+                        SUBHI topPaddleLocationLeftCornerX, ballWidth
 
                         topPaddleLocationRightCornerX .req r8
                         MOV topPaddleLocationRightCornerX, topPaddleLocationLeftCornerX
                         ADD topPaddleLocationRightCornerX, paddleWidth
                         ADD topPaddleLocationRightCornerX, ballWidth
+                        ADD topPaddleLocationRightCornerX, #1
 
                         topPaddleLocationY .req r9
                         LSL topPaddleLocationY, paddleHeight, #1
@@ -60,6 +62,7 @@
                         MOV bottomPaddleLocationRightCornerX, bottomPaddleLocationLeftCornerX
                         ADD bottomPaddleLocationRightCornerX, paddleWidth
                         ADD bottomPaddleLocationRightCornerX, ballWidth
+                        ADD bottomPaddleLocationRightCornerX, #1
 
                         bottomPaddleLocationY .req r12
                         SUB bottomPaddleLocationY, tableBottomBorder, paddleHeight, LSL #1
@@ -85,7 +88,7 @@
                                 CMP x, topPaddleLocationLeftCornerX
                                     BLS bottomOfTopPaddleMissed
                                     CMP x, topPaddleLocationRightCornerX
-                                        BHI bottomOfTopPaddleMissed
+                                        BGE bottomOfTopPaddleMissed
                                         CMP y, topPaddleLocationY
                                         B revertUpToDown
 

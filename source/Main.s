@@ -73,13 +73,13 @@
 
                 BL SetGPIO
                 BL DrawTopPaddle
-                //BL MoveTopPaddle
                 BL DrawFrame
 
                 whileTrue:
 
                     BL CaptureStartTimestamp
 
+                    //BL WipeBall   // TODO: For now
                     BL DrawNet
                     BL MoveTopPaddle
                     BL DrawBottomPaddle

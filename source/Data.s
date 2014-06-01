@@ -77,7 +77,7 @@
     PaddleHeight:    .int 10
 
     .globl TopPaddleLocationX
-    TopPaddleLocationX: .int 115
+    TopPaddleLocationX: .int 22
 
     .globl BottomPaddleLocationX
     BottomPaddleLocationX: .int 115
@@ -92,10 +92,10 @@
     BallHeight:  .int 10
 
     .globl BallDirectionX
-    BallDirectionX:  .int 1
+    BallDirectionX:  .int 0
 
     .globl BallDirectionY
-    BallDirectionY:  .int 1
+    BallDirectionY:  .int 0
 
     .globl TableLeftBorder
     TableLeftBorder:    .int 5
@@ -110,16 +110,16 @@
     TableBottomBorder:  .int 0
 
     .globl BallPositionX
-    BallPositionX:  .int 100
+    BallPositionX:  .int 1 + 15
 
     .globl BallPositionY
-    BallPositionY:  .int 100
+    BallPositionY:  .int 10 + 15
 
     .globl PreviousBallPositionX
-    PreviousBallPositionX:  .int 100
+    PreviousBallPositionX:  .int 1 + 15
 
     .globl PreviousBallPositionY
-    PreviousBallPositionY:  .int 100
+    PreviousBallPositionY:  .int 10 + 15
 
     .globl GPIOPinLevelsAddress
     GPIOPinLevelsAddress:   .int 0x20200034
