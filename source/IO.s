@@ -14,4 +14,10 @@
                 MOV pinToSet, #0 << 24            // PIN 8 is set to INPUT
                 STR pinToSet, [gpioAddress]
 
+                MOV pinToSet, #0 << 9            // PIN 9 is set to INPUT
+                STR pinToSet, [gpioAddress, #8]
+
+                MOV pinToSet, #0 << 12            // PIN 10 is set to INPUT
+                STR pinToSet, [gpioAddress, #8]
+
                 POP { r0, r1, pc }

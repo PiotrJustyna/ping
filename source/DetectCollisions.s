@@ -56,7 +56,8 @@
                         bottomPaddleLocationLeftCornerX .req r10
                         LDR bottomPaddleLocationLeftCornerX, =BottomPaddleLocationX
                         LDR bottomPaddleLocationLeftCornerX, [bottomPaddleLocationLeftCornerX]
-                        SUB bottomPaddleLocationLeftCornerX, ballWidth
+                        CMP bottomPaddleLocationLeftCornerX, ballWidth
+                        SUBHI bottomPaddleLocationLeftCornerX, ballWidth
 
                         bottomPaddleLocationRightCornerX .req r11
                         MOV bottomPaddleLocationRightCornerX, bottomPaddleLocationLeftCornerX

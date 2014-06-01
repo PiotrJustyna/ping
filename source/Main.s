@@ -14,11 +14,11 @@
 
     Main:   BL InitialiseFrameBuffer
             frameBufferInfo .req r0
-            TEQ frameBufferInfo, #0                             // If the framebuffer info address is 0 (TEQ not to affect V and C flags), there's an error.
+            TEQ frameBufferInfo, #0                                 // If the framebuffer info address is 0 (TEQ not to affect V and C flags), there's an error.
             BEQ errorLoop
             framebufferInfoAddress .req r1
             LDR framebufferInfoAddress, =FramebufferInfoAddress
-            STR frameBufferInfo, [framebufferInfoAddress]       // Preserve the framebuffer info address so it doesn't have to be stored in registers.
+            STR frameBufferInfo, [framebufferInfoAddress]           // Preserve the framebuffer info address so it doesn't have to be stored in registers.
             .unreq frameBufferInfo
             .unreq framebufferInfoAddress
 
@@ -58,7 +58,7 @@
                 timespan .req r2
 
                 frameTime .req r3
-                LDR frameTime, =5000
+                LDR frameTime, =1000
 
                 timerAddress .req r4
                 LDR timerAddress, =TimerAddress
@@ -73,6 +73,7 @@
 
                 BL SetGPIO
                 BL DrawTopPaddle
+                BL DrawBottomPaddle
                 BL DrawFrame
 
                 whileTrue:
@@ -82,7 +83,7 @@
                     //BL WipeBall   // TODO: For now
                     BL DrawNet
                     BL MoveTopPaddle
-                    BL DrawBottomPaddle
+                    BL MoveBottomPaddle
                     BL DrawBall
                     BL DetectCollisions
 
