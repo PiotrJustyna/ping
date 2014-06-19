@@ -64,12 +64,19 @@
                 LDR timerAddress, =TimerAddress
                 LDR timerAddress, [timerAddress]
 
+                currentTimestamp .req r6
+                LDR currentTimestamp, [timerAddress]
+
+                lastEndTimestampBeforeRegisterOverflow .req r7
+                MOV lastEndTimestampBeforeRegisterOverflow, #0
+                SUB lastEndTimestampBeforeRegisterOverflow, #1
+
                 endTimestamp .req r5
-                LDR endTimestamp, [timerAddress]
+                MOV endTimestamp, currentTimestamp
                 ADD endTimestamp, frameTime
 
-                currentTimestamp .req r6
-                xSafeCopy .req r7
+                xSafeCopy .req r8
+                previousEndTimestamp .req r9
 
                 BL SetGPIO
                 BL DrawTopPaddle
@@ -90,7 +97,6 @@
                     BL CaptureEndTimestamp
 
                     MOV xSafeCopy, x
-
                     BL MeasureTimespan
                     MOV timespan, r0
                     MOV x, xSafeCopy
@@ -99,10 +105,24 @@
                     waitForNextFrame:
 
                         LDR currentTimestamp, [timerAddress]
-                        CMP currentTimestamp, endTimestamp
-                        ADDGE endTimestamp, frameTime
+                        CMP endTimestamp, currentTimestamp
+                        BHI waitForNextFrame                    // no yet time for next frame
+                        BEQ checkLastTickBeforeOverflow         // it's time for next frame, but check if the endTimestamp should be reset to frameTime
+                        B addFrameTime                          // otherwise, it's time for next frame
 
-                    BLT waitForNextFrame
+                        checkLastTickBeforeOverflow:
+
+                            CMP endTimestamp, lastEndTimestampBeforeRegisterOverflow
+                            MOVEQ endTimestamp, frameTime
+
+                        addFrameTime:
+
+                            MOV previousEndTimestamp, endTimestamp
+                            ADD endTimestamp, frameTime
+                            CMP previousEndTimestamp, endTimestamp                                  // overflow?
+                                BLS whileTrue                                                       // no - continue
+                                CMP currentTimestamp, endTimestamp                                  // yes - if endTimestamp is overflown, assign last available 32-bit value instead (all ones)
+                                MOVHI endTimestamp, lastEndTimestampBeforeRegisterOverflow
 
                 B whileTrue
 
@@ -114,6 +134,8 @@
                 .unreq endTimestamp
                 .unreq currentTimestamp
                 .unreq xSafeCopy
+                .unreq previousEndTimestamp
+                .unreq lastEndTimestampBeforeRegisterOverflow
             // <- Drawing
 
             errorLoop:

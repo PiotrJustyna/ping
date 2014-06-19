@@ -179,7 +179,7 @@
                 POP { r0, r1, r2, r3, r4, pc }
 
     .globl WipeBall
-    WipeBall:   PUSH { r0, r1, r2, r3, r4, r5, lr }
+    WipeBall:   PUSH { r0, r1, r2, r3, r4, r5, r6, lr }
 
                 x .req r0
                 LDR x, =PreviousBallPositionX
@@ -236,7 +236,7 @@
                 LDR foregroundColourValue, [foregroundColourValue]
                 STR foregroundColourValue, [foregroundColourAddress]
 
-                POP { r0, r1, r2, r3, r4, r5, pc }
+                POP { r0, r1, r2, r3, r4, r5, r6, pc }
 
     .globl DrawBall
     DrawBall:   PUSH { r0, r1, r2, r3, r4, r5, lr }
