@@ -13,3 +13,6 @@ My variation on PONG game written for Raspberry Pi in ARM assembly language. All
 
 ### Both controllers assembled and connected to Raspberry Pi: ###
 ![assembled controllers.jpg](https://bitbucket.org/repo/8MkLoE/images/2022666756-assembled%20controllers.jpg)
+
+### Players' avatars displayed in the corners ###
+![IMG_3276_small.jpg](https://bitbucket.org/repo/8MkLoE/images/3699105433-IMG_3276_small.jpg)
