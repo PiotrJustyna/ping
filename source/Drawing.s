@@ -43,6 +43,79 @@
 
                 POP { r2, r3, r4, r5, r6, pc }
 
+    /* Draws a point on the screen. */
+    /* 
+        Params:
+        - x (r0)
+        - y (r1)
+        - colour (r2)
+        - size in pixels (r3) - that's the size of the point expressed in pixels
+    */
+    /* Returns: - */
+    .globl DrawPoint
+    DrawPoint:   PUSH { r4, r5, r6, r7, r8, r9, lr }
+
+                    x .req r0
+                    y .req r1
+                    colour .req r2
+                    sizeInPixels .req r3
+
+                    frameBufferInfo .req r4
+                    LDR frameBufferInfo, =FramebufferInfoAddress
+                    LDR frameBufferInfo, [frameBufferInfo]
+
+                    framebufferAddress .req r5
+                    LDR framebufferAddress, [frameBufferInfo, #32]
+
+                    screenWidth .req r6
+                    LDR screenWidth, [frameBufferInfo, #0]
+
+                    rowCounter .req r7
+                    MOV rowCounter, #0
+
+                    columnCounter .req r8
+                    MOV columnCounter, #0
+
+                    pixelAddress .req r9
+
+                    drawPointsRows:
+
+                        drawPointsColumns:
+
+                            MLA pixelAddress, screenWidth, y, x
+                            ADD pixelAddress, pixelAddress
+                            ADD pixelAddress, framebufferAddress
+                            STRH colour, [pixelAddress]
+
+                            ADD x, #1
+                            ADD columnCounter, #1
+                            CMP columnCounter, sizeInPixels
+
+                        BNE drawPointsColumns
+
+                        SUB x, sizeInPixels
+                        MOV columnCounter, #0
+                        ADD y, #1
+                        ADD rowCounter, #1
+                        CMP rowCounter, sizeInPixels
+
+                    BNE drawPointsRows
+
+                    SUB y, sizeInPixels
+
+                    .unreq x
+                    .unreq y
+                    .unreq colour
+                    .unreq sizeInPixels
+                    .unreq frameBufferInfo
+                    .unreq framebufferAddress
+                    .unreq screenWidth
+                    .unreq rowCounter
+                    .unreq columnCounter
+                    .unreq pixelAddress           
+
+                    POP { r4, r5, r6, r7, r8, r9, pc }
+
     .globl DrawFrame
     DrawFrame:  PUSH { r0, r1, r2, r3, r4, r5, lr }
 

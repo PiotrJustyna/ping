@@ -82,6 +82,8 @@
                 BL DrawTopPaddle
                 BL DrawBottomPaddle
                 BL DrawFrame
+                BL DrawTopAvatar
+                BL DrawBottomAvatar
 
                 whileTrue:
 
@@ -106,7 +108,7 @@
 
                         LDR currentTimestamp, [timerAddress]
                         CMP endTimestamp, currentTimestamp
-                        BHI waitForNextFrame                    // no yet time for next frame
+                        BHI waitForNextFrame                    // not yet time for next frame
                         BEQ checkLastTickBeforeOverflow         // it's time for next frame, but check if the endTimestamp should be reset to frameTime
                         B addFrameTime                          // otherwise, it's time for next frame
 
