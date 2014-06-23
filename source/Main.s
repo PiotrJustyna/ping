@@ -95,6 +95,7 @@
                     BL MoveBottomPaddle
                     BL DrawBall
                     BL DetectCollisions
+                    BL DrawScore
 
                     BL CaptureEndTimestamp
 

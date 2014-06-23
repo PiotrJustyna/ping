@@ -95,6 +95,9 @@
 
                             bottomOfTopPaddleMissed:
 
+                                CMP y, topPaddleLocationY   // is that a score?
+                                BLEQ BottomPlayerScores
+                                BLEQ rightBorderHit
                                 CMP y, #2
 
                             revertUpToDown:
@@ -114,6 +117,9 @@
 
                             topOfBottomPaddleMissed:
 
+                                CMP y, bottomPaddleLocationY    // is that a score?
+                                BLEQ TopPlayerScores
+                                BLEQ rightBorderHit
                                 CMP y, tableBottomBorder
 
                             revertDownToUp:
@@ -212,3 +218,37 @@
                         .unreq bottomPaddleLocationY
 
                         POP { r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, pc }
+
+    .globl BottomPlayerScores
+    BottomPlayerScores: PUSH { r0, r1, lr }
+
+                        bottomPlayersScoreAddress .req r0
+                        LDR bottomPlayersScoreAddress, =BottomPlayerScore
+
+                        bottomPlayersScore .req r1
+
+                        LDR bottomPlayersScore, [bottomPlayersScoreAddress]
+                        ADD bottomPlayersScore, #1
+                        STR bottomPlayersScore, [bottomPlayersScoreAddress]
+
+                        .unreq bottomPlayersScoreAddress
+                        .unreq bottomPlayersScore
+
+                        POP { r0, r1, pc }
+
+    .globl TopPlayerScores
+    TopPlayerScores:    PUSH { r0, r1, lr }
+
+                        topPlayersScoreAddress .req r0
+                        LDR topPlayersScoreAddress, =TopPlayerScore
+
+                        topPlayersScore .req r1
+
+                        LDR topPlayersScore, [topPlayersScoreAddress]
+                        ADD topPlayersScore, #1
+                        STR topPlayersScore, [topPlayersScoreAddress]
+
+                        .unreq topPlayersScoreAddress
+                        .unreq topPlayersScore
+
+                        POP { r0, r1, pc }

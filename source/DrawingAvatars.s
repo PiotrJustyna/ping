@@ -19,10 +19,10 @@
                     sizeInPixels .req r3
                     MOV sizeInPixels, #5
 
-					screenWidth .req r4
-                    LDR screenWidth, =FramebufferInfoAddress 	// This looks crazy, but it goes like this: framebufferr info address...
-                    LDR screenWidth, [screenWidth] 				// ... framebuffer info...
-                    LDR screenWidth, [screenWidth, #0] 			// ... frambuffer info's first word, which is the screenWidth.
+                    screenWidth .req r4
+                    LDR screenWidth, =FramebufferInfoAddress    // This looks crazy, but it goes like this: framebufferr info address...
+                    LDR screenWidth, [screenWidth]              // ... framebuffer info...
+                    LDR screenWidth, [screenWidth, #0]          // ... frambuffer info's first word, which is the screenWidth.
 
                     scoreMargin .req r5
                     LDR scoreMargin, =ScoreMargin
@@ -55,35 +55,35 @@
 
                     drawTopAvatarsRows:
 
-	                    drawTopAvatarsColumns:
+                        drawTopAvatarsColumns:
 
-		                    LDR colour, [topAvatarAddress, #2]!
-							BL DrawPoint
-		                    ADD x, sizeInPixels
-		                    ADD columnCounter, #1
-		                   	CMP columnCounter, numberOfColumns
+                            LDR colour, [topAvatarAddress, #2]!
+                            BL DrawPoint
+                            ADD x, sizeInPixels
+                            ADD columnCounter, #1
+                            CMP columnCounter, numberOfColumns
 
-		                BNE drawTopAvatarsColumns
+                        BNE drawTopAvatarsColumns
 
-                    	MOV x, avatarOriginX
-		                MOV columnCounter, #0
-		                ADD y, sizeInPixels
-		                ADD rowCounter, #1
-		                CMP rowCounter, numberOfRows
+                        MOV x, avatarOriginX
+                        MOV columnCounter, #0
+                        ADD y, sizeInPixels
+                        ADD rowCounter, #1
+                        CMP rowCounter, numberOfRows
 
-		           	BNE drawTopAvatarsRows
+                    BNE drawTopAvatarsRows
 
-		           	.unreq x
-		           	.unreq y
-		           	.unreq colour
-		           	.unreq sizeInPixels
-		           	.unreq topAvatarAddress
-		           	.unreq numberOfRows
-		           	.unreq numberOfColumns
-		           	.unreq columnCounter
-		           	.unreq rowCounter
+                    .unreq x
+                    .unreq y
+                    .unreq colour
+                    .unreq sizeInPixels
+                    .unreq topAvatarAddress
+                    .unreq numberOfRows
+                    .unreq numberOfColumns
+                    .unreq columnCounter
+                    .unreq rowCounter
 
-    				POP { r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, pc }
+                    POP { r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, pc }
 
     .globl DrawBottomAvatar
     DrawBottomAvatar:  PUSH { r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, lr }
@@ -95,10 +95,10 @@
                     sizeInPixels .req r3
                     MOV sizeInPixels, #5
 
-					screenWidth .req r4
-                    LDR screenWidth, =FramebufferInfoAddress 	// This looks crazy, but it goes like this: framebufferr info address...
-                    LDR screenWidth, [screenWidth] 				// ... framebuffer info...
-                    LDR screenWidth, [screenWidth, #0] 			// ... frambuffer info's first word, which is the screenWidth.
+                    screenWidth .req r4
+                    LDR screenWidth, =FramebufferInfoAddress    // This looks crazy, but it goes like this: framebufferr info address...
+                    LDR screenWidth, [screenWidth]              // ... framebuffer info...
+                    LDR screenWidth, [screenWidth, #0]          // ... frambuffer info's first word, which is the screenWidth.
 
                     scoreMargin .req r5
                     LDR scoreMargin, =ScoreMargin
@@ -142,32 +142,32 @@
 
                     drawBottomAvatarsRows:
 
-	                    drawBottomAvatarsColumns:
+                        drawBottomAvatarsColumns:
 
-		                    LDR colour, [topAvatarAddress, #2]!
-							BL DrawPoint
-		                    ADD x, sizeInPixels
-		                    ADD columnCounter, #1
-		                   	CMP columnCounter, numberOfColumns
+                            LDR colour, [topAvatarAddress, #2]!
+                            BL DrawPoint
+                            ADD x, sizeInPixels
+                            ADD columnCounter, #1
+                            CMP columnCounter, numberOfColumns
 
-		                BNE drawBottomAvatarsColumns
+                        BNE drawBottomAvatarsColumns
 
-                    	MOV x, avatarOriginX
-		                MOV columnCounter, #0
-		                ADD y, sizeInPixels
-		                ADD rowCounter, #1
-		                CMP rowCounter, numberOfRows
+                        MOV x, avatarOriginX
+                        MOV columnCounter, #0
+                        ADD y, sizeInPixels
+                        ADD rowCounter, #1
+                        CMP rowCounter, numberOfRows
 
-		           	BNE drawBottomAvatarsRows
+                    BNE drawBottomAvatarsRows
 
-		           	.unreq x
-		           	.unreq y
-		           	.unreq colour
-		           	.unreq sizeInPixels
-		           	.unreq topAvatarAddress
-		           	.unreq numberOfRows
-		           	.unreq numberOfColumns
-		           	.unreq columnCounter
-		           	.unreq rowCounter
+                    .unreq x
+                    .unreq y
+                    .unreq colour
+                    .unreq sizeInPixels
+                    .unreq topAvatarAddress
+                    .unreq numberOfRows
+                    .unreq numberOfColumns
+                    .unreq columnCounter
+                    .unreq rowCounter
 
-    				POP { r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, pc }
+                    POP { r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, pc }

@@ -376,6 +376,32 @@
 
                 POP { r0, r1, r2, r3, r4, r5, pc }
 
+    .globl DrawScore
+    DrawScore:  PUSH { r0, r1, r2, lr }
+
+                x .req r0
+                LDR x, =(1280 - 180)
+
+                y .req r1
+                LDR y, =500
+
+                scoreToDraw .req r2
+
+                LDR scoreToDraw, =TopPlayerScore
+                LDR scoreToDraw, [scoreToDraw]
+                BL DrawWord
+
+                ADD y, #6
+                LDR scoreToDraw, =BottomPlayerScore
+                LDR scoreToDraw, [scoreToDraw]
+                BL DrawWord
+
+                .unreq x
+                .unreq y
+                .unreq scoreToDraw
+
+                POP { r0, r1, r2, pc }
+
     .globl DrawWord
     DrawWord:   PUSH { r3, lr }
 
