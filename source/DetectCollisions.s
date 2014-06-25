@@ -229,7 +229,13 @@
 
                         LDR bottomPlayersScore, [bottomPlayersScoreAddress]
                         ADD bottomPlayersScore, #1
+
+                        CMP bottomPlayersScore, #2
+                        MOVHI bottomPlayersScore, #0
+
                         STR bottomPlayersScore, [bottomPlayersScoreAddress]
+
+                        BL DrawScore
 
                         .unreq bottomPlayersScoreAddress
                         .unreq bottomPlayersScore
@@ -246,7 +252,13 @@
 
                         LDR topPlayersScore, [topPlayersScoreAddress]
                         ADD topPlayersScore, #1
+
+                        CMP topPlayersScore, #2
+                        MOVHI topPlayersScore, #0
+
                         STR topPlayersScore, [topPlayersScoreAddress]
+
+                        BL DrawScore
 
                         .unreq topPlayersScoreAddress
                         .unreq topPlayersScore

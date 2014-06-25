@@ -377,30 +377,79 @@
                 POP { r0, r1, r2, r3, r4, r5, pc }
 
     .globl DrawScore
-    DrawScore:  PUSH { r0, r1, r2, lr }
+    DrawScore:  PUSH { r0, r1, r2, r3, r4, r5, lr }
 
                 x .req r0
-                LDR x, =(1280 - 180)
-
                 y .req r1
-                LDR y, =500
-
                 scoreToDraw .req r2
-
                 LDR scoreToDraw, =TopPlayerScore
                 LDR scoreToDraw, [scoreToDraw]
-                BL DrawWord
 
-                ADD y, #6
-                LDR scoreToDraw, =BottomPlayerScore
-                LDR scoreToDraw, [scoreToDraw]
-                BL DrawWord
+                screenHeight .req r3
+                LDR screenHeight, =FramebufferInfoAddress
+                LDR screenHeight, [screenHeight]
+                LDR screenHeight, [screenHeight, #4]
 
-                .unreq x
-                .unreq y
-                .unreq scoreToDraw
+                screenWidth .req r4
+                LDR screenWidth, =FramebufferInfoAddress
+                LDR screenWidth, [screenWidth]
+                LDR screenWidth, [screenWidth, #0]
 
-                POP { r0, r1, r2, pc }
+                scoreMargin .req r5
+                LDR scoreMargin, =ScoreMargin
+                LDR scoreMargin, [scoreMargin]
+
+                SUB x, screenWidth, scoreMargin
+                ADD x, #130
+
+                MOV y, screenHeight, LSR #1
+                SUB y, #20
+
+                BL WipeBigNumber
+
+                CMP scoreToDraw, #0
+                BLEQ DrawBigZero
+                BEQ drawBottomScore
+
+                CMP scoreToDraw, #1
+                BLEQ DrawBigOne
+                BEQ drawBottomScore
+
+                CMP scoreToDraw, #2
+                BLEQ DrawBigTwo
+                BEQ drawBottomScore
+
+                drawBottomScore:
+
+                    ADD y, #140
+
+                    LDR scoreToDraw, =BottomPlayerScore
+                    LDR scoreToDraw, [scoreToDraw]
+
+                    BL WipeBigNumber
+
+                    CMP scoreToDraw, #0
+                    BLEQ DrawBigZero
+                    BEQ drawingScoresFinished
+
+                    CMP scoreToDraw, #1
+                    BLEQ DrawBigOne
+                    BEQ drawingScoresFinished
+
+                    CMP scoreToDraw, #2
+                    BLEQ DrawBigTwo
+                    BEQ drawingScoresFinished
+
+                drawingScoresFinished:
+
+                    .unreq x
+                    .unreq y
+                    .unreq scoreToDraw
+                    .unreq screenHeight
+                    .unreq screenWidth
+                    .unreq scoreMargin
+
+                    POP { r0, r1, r2, r3, r4, r5, pc }
 
     .globl DrawWord
     DrawWord:   PUSH { r3, lr }
@@ -472,233 +521,3 @@
                         .unreq testedRegister
 
                         POP { pc }
-
-    .globl DrawOne
-    DrawOne:    PUSH { r2, r3, r4, lr }
-
-                x .req r0
-                y .req r1
-
-                foregroundColour .req r2
-                LDR foregroundColour, =ForegoundColour
-
-                backgroundColour .req r3
-                LDR backgroundColour, =BackgroundColour
-                LDR backgroundColour, [backgroundColour]
-
-                previousForegroundColour .req r4
-
-                /* Row 1 */
-                    ADD x, #3
-                    BL DrawPixel
-                /* <- Row 1 */
-
-                /* Row 2 */
-                    SUB y, #1
-                    BL DrawPixel
-                /* <- Row 2 */
-
-                /* Row 3 */
-                    SUB y, #1
-                    BL DrawPixel
-                /* <- Row 3 */
-
-                /* Row 4 */
-                    SUB y, #1
-
-                    SUB x, #1
-                    BL DrawPixel
-
-                    ADD x, #1
-                    BL DrawPixel
-                /* <- Row 4 */
-
-                /* Row 5 */
-                    SUB y, #1
-                    BL DrawPixel
-                /* <- Row 5 */
-
-                LDR previousForegroundColour, [foregroundColour]
-                STR backgroundColour, [foregroundColour]
-                SUB x, #3
-                ADD y, #4
-
-                /* Row 1 */
-                    BL DrawPixel
-
-                    ADD x, #1
-                    BL DrawPixel
-
-                    ADD x, #1
-                    BL DrawPixel
-                /* <- Row 1 */
-
-                /* Row 2 */
-                    SUB y, #1
-
-                    BL DrawPixel
-
-                    SUB x, #1
-                    BL DrawPixel
-
-                    SUB x, #1
-                    BL DrawPixel
-                /* <- Row 2 */
-
-                /* Row 3 */
-                    SUB y, #1
-
-                    BL DrawPixel
-
-                    ADD x, #1
-                    BL DrawPixel
-
-                    ADD x, #1
-                    BL DrawPixel
-                /* <- Row 3 */
-
-                /* Row 4 */
-                    SUB y, #1
-                    SUB x, #1
-
-                    BL DrawPixel
-
-                    SUB x, #1
-                    BL DrawPixel
-                /* <- Row 4 */
-
-                /* Row 5 */
-                    SUB y, #1
-
-                    BL DrawPixel
-
-                    ADD x, #1
-                    BL DrawPixel
-
-                    ADD x, #1
-                    BL DrawPixel
-                /* <- Row 4 */
-
-                STR previousForegroundColour, [foregroundColour]
-                SUB x, #2
-                ADD y, #4
-
-                .unreq x
-                .unreq y
-                .unreq foregroundColour
-                .unreq backgroundColour
-                .unreq previousForegroundColour
-
-                POP { r2, r3, r4, pc }
-
-    .globl DrawZero
-    DrawZero:   PUSH { r2, r3, r4, lr }
-
-                x .req r0
-                y .req r1
-
-                foregroundColour .req r2
-                LDR foregroundColour, =ForegoundColour
-
-                backgroundColour .req r3
-                LDR backgroundColour, =BackgroundColour
-                LDR backgroundColour, [backgroundColour]
-
-                previousForegroundColour .req r4
-
-                /* Row 1 */
-                    BL DrawPixel
-
-                    ADD x, #1
-                    BL DrawPixel
-
-                    ADD x, #1
-                    BL DrawPixel
-
-                    ADD x, #1
-                    BL DrawPixel
-                /* <- Row 1 */
-
-                /* Row 2 */
-                    SUB y, #1
-
-                    BL DrawPixel
-
-                    SUB x, #3
-                    BL DrawPixel
-                /* <- Row 2 */
-
-                /* Row 3 */
-                    SUB y, #1
-
-                    BL DrawPixel
-
-                    ADD x, #3
-                    BL DrawPixel
-                /* <- Row 3 */
-
-                /* Row 4 */
-                    SUB y, #1
-
-                    BL DrawPixel
-
-                    SUB x, #3
-                    BL DrawPixel
-                /* <- Row 4 */
-
-                /* Row 5 */
-                    SUB y, #1
-
-                    BL DrawPixel
-
-                    ADD x, #1
-                    BL DrawPixel
-
-                    ADD x, #1
-                    BL DrawPixel
-
-                    ADD x, #1
-                    BL DrawPixel
-                /* <- Row 5 */
-
-                LDR previousForegroundColour, [foregroundColour]
-                STR backgroundColour, [foregroundColour]
-                SUB x, #2
-                ADD y, #3
-
-                /* Row 2 */
-                    BL DrawPixel
-
-                    ADD x, #1
-                    BL DrawPixel
-                /* <- Row 2 */
-
-                /* Row 3 */
-                    SUB y, #1
-
-                    BL DrawPixel
-
-                    SUB x, #1
-                    BL DrawPixel
-                /* <- Row 3 */
-
-                /* Row 4 */
-                    SUB y, #1
-
-                    BL DrawPixel
-
-                    ADD x, #1
-                    BL DrawPixel
-                /* <- Row 4 */
-
-                STR previousForegroundColour, [foregroundColour]
-                SUB x, #2
-                ADD y, #3
-
-                .unreq x
-                .unreq y
-                .unreq foregroundColour
-                .unreq backgroundColour
-                .unreq previousForegroundColour
-
-                POP { r2, r3, r4, pc }

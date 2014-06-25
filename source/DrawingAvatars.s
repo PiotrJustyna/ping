@@ -30,7 +30,7 @@
 
                     avatarOriginX .req r6
                     SUB avatarOriginX, screenWidth, scoreMargin
-                    ADD avatarOriginX, #10
+                    ADD avatarOriginX, #20
 
                     .unreq screenWidth
                     .unreq scoreMargin
@@ -86,88 +86,88 @@
                     POP { r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, pc }
 
     .globl DrawBottomAvatar
-    DrawBottomAvatar:  PUSH { r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, lr }
+    DrawBottomAvatar:   PUSH { r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, lr }
 
-                    x .req r0
-                    y .req r1
-                    colour .req r2
+                        x .req r0
+                        y .req r1
+                        colour .req r2
 
-                    sizeInPixels .req r3
-                    MOV sizeInPixels, #5
+                        sizeInPixels .req r3
+                        MOV sizeInPixels, #5
 
-                    screenWidth .req r4
-                    LDR screenWidth, =FramebufferInfoAddress    // This looks crazy, but it goes like this: framebufferr info address...
-                    LDR screenWidth, [screenWidth]              // ... framebuffer info...
-                    LDR screenWidth, [screenWidth, #0]          // ... frambuffer info's first word, which is the screenWidth.
+                        screenWidth .req r4
+                        LDR screenWidth, =FramebufferInfoAddress    // This looks crazy, but it goes like this: framebufferr info address...
+                        LDR screenWidth, [screenWidth]              // ... framebuffer info...
+                        LDR screenWidth, [screenWidth, #0]          // ... frambuffer info's first word, which is the screenWidth.
 
-                    scoreMargin .req r5
-                    LDR scoreMargin, =ScoreMargin
-                    LDR scoreMargin, [scoreMargin]
+                        scoreMargin .req r5
+                        LDR scoreMargin, =ScoreMargin
+                        LDR scoreMargin, [scoreMargin]
 
-                    avatarOriginX .req r6
-                    SUB avatarOriginX, screenWidth, scoreMargin
-                    ADD avatarOriginX, #10
+                        avatarOriginX .req r6
+                        SUB avatarOriginX, screenWidth, scoreMargin
+                        ADD avatarOriginX, #20
 
-                    .unreq screenWidth
-                    .unreq scoreMargin
+                        .unreq screenWidth
+                        .unreq scoreMargin
 
-                    screenHeight .req r4
-                    LDR screenHeight, =FramebufferInfoAddress
-                    LDR screenHeight, [screenHeight]
-                    LDR screenHeight, [screenHeight, #4]
+                        screenHeight .req r4
+                        LDR screenHeight, =FramebufferInfoAddress
+                        LDR screenHeight, [screenHeight]
+                        LDR screenHeight, [screenHeight, #4]
 
-                    avatarOriginY .req r5
-                    SUB avatarOriginY, screenHeight, #215
+                        avatarOriginY .req r5
+                        SUB avatarOriginY, screenHeight, #215
 
-                    .unreq screenHeight
+                        .unreq screenHeight
 
-                    topAvatarAddress .req r4
-                    LDR topAvatarAddress, =TopAvatar
-                    SUB topAvatarAddress, #2
+                        topAvatarAddress .req r4
+                        LDR topAvatarAddress, =TopAvatar
+                        SUB topAvatarAddress, #2
 
-                    numberOfRows .req r7
-                    MOV numberOfRows, #43
+                        numberOfRows .req r7
+                        MOV numberOfRows, #43
 
-                    numberOfColumns .req r8
-                    MOV numberOfColumns, #36
+                        numberOfColumns .req r8
+                        MOV numberOfColumns, #36
 
-                    columnCounter .req r9
-                    MOV columnCounter, #0
+                        columnCounter .req r9
+                        MOV columnCounter, #0
 
-                    rowCounter .req r10
-                    MOV rowCounter, #0
-
-                    MOV x, avatarOriginX
-                    MOV y, avatarOriginY
-
-                    drawBottomAvatarsRows:
-
-                        drawBottomAvatarsColumns:
-
-                            LDR colour, [topAvatarAddress, #2]!
-                            BL DrawPoint
-                            ADD x, sizeInPixels
-                            ADD columnCounter, #1
-                            CMP columnCounter, numberOfColumns
-
-                        BNE drawBottomAvatarsColumns
+                        rowCounter .req r10
+                        MOV rowCounter, #0
 
                         MOV x, avatarOriginX
-                        MOV columnCounter, #0
-                        ADD y, sizeInPixels
-                        ADD rowCounter, #1
-                        CMP rowCounter, numberOfRows
+                        MOV y, avatarOriginY
 
-                    BNE drawBottomAvatarsRows
+                        drawBottomAvatarsRows:
 
-                    .unreq x
-                    .unreq y
-                    .unreq colour
-                    .unreq sizeInPixels
-                    .unreq topAvatarAddress
-                    .unreq numberOfRows
-                    .unreq numberOfColumns
-                    .unreq columnCounter
-                    .unreq rowCounter
+                            drawBottomAvatarsColumns:
 
-                    POP { r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, pc }
+                                LDR colour, [topAvatarAddress, #2]!
+                                BL DrawPoint
+                                ADD x, sizeInPixels
+                                ADD columnCounter, #1
+                                CMP columnCounter, numberOfColumns
+
+                            BNE drawBottomAvatarsColumns
+
+                            MOV x, avatarOriginX
+                            MOV columnCounter, #0
+                            ADD y, sizeInPixels
+                            ADD rowCounter, #1
+                            CMP rowCounter, numberOfRows
+
+                        BNE drawBottomAvatarsRows
+
+                        .unreq x
+                        .unreq y
+                        .unreq colour
+                        .unreq sizeInPixels
+                        .unreq topAvatarAddress
+                        .unreq numberOfRows
+                        .unreq numberOfColumns
+                        .unreq columnCounter
+                        .unreq rowCounter
+
+                        POP { r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, pc }
