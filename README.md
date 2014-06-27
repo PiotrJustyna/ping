@@ -2,6 +2,8 @@
 
 My variation on PONG game written for Raspberry Pi in ARM assembly language. All hardware designed, assembled and soldered by myself.
 
+***IMPORTANT*** I am not a professional ARM developer and I wrote this project just for fun. Please use the code at your own responsibility. If you spot a bug or something that can be done better, please let me know!
+
 ### First assembled controller: ###
 ![SmallController.jpg](https://bitbucket.org/repo/8MkLoE/images/2181729283-SmallController.jpg)
 
