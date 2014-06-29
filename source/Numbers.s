@@ -379,6 +379,11 @@
 
                     ADD y, #50
 
+                    .unreq x
+                    .unreq y
+                    .unreq width
+                    .unreq heightLimit
+
                     POP { r2, r3, pc }
 
     .globl DrawBigTwo
@@ -439,6 +444,138 @@
                     BNE bigTwoTopPart
 
                     ADD y, #100
+
+                    .unreq x
+                    .unreq y
+                    .unreq widthLimit
+                    .unreq heightLimit
+
+                    POP { r2, r3, pc }
+
+    .globl DrawBigThree
+    DrawBigThree:   PUSH { r2, r3, lr }
+
+                    x .req r0
+                    y .req r1
+                    widthLimit .req r2
+                    ADD widthLimit, x, #50
+
+                    heightLimit .req r3
+                    SUB heightLimit, y, #50
+
+                    bigThreeBottomPart:
+
+                        BL DrawPixel
+                        ADD x, #1
+                        CMP x, widthLimit
+
+                    BNE bigThreeBottomPart
+
+                    bigThreeBottomRightPart:
+
+                        BL DrawPixel
+                        SUB y, #1
+                        CMP y, heightLimit
+
+                    BNE bigThreeBottomRightPart
+
+                    SUB widthLimit, x, #50
+
+                    bigThreeMiddlePart:
+
+                        BL DrawPixel
+                        SUB x, #1
+                        CMP x, widthLimit
+
+                    BNE bigThreeMiddlePart
+
+                    ADD x, #50
+                    SUB heightLimit, #50
+
+                    bigThreeTopRightPart:
+
+                        BL DrawPixel
+                        SUB y, #1
+                        CMP y, heightLimit
+
+                    BNE bigThreeTopRightPart
+
+                    SUB widthLimit, x, #50
+
+                    bigThreeTopPart:
+
+                        BL DrawPixel
+                        SUB x, #1
+                        CMP x, widthLimit
+
+                    BNE bigThreeTopPart
+
+                    ADD y, #100
+
+                    .unreq x
+                    .unreq y
+                    .unreq widthLimit
+                    .unreq heightLimit
+
+                    POP { r2, r3, pc }
+
+    .globl DrawBigFour
+    DrawBigFour:   PUSH { r2, r3, lr }
+
+                    x .req r0
+                    y .req r1
+                    widthLimit .req r2
+                    MOV widthLimit, x
+
+                    heightLimit .req r3
+                    SUB heightLimit, y, #50
+
+                    ADD x, #50
+
+                    bigFourBottomRightPart:
+
+                        BL DrawPixel
+                        SUB y, #1
+                        CMP y, heightLimit
+
+                    BNE bigFourBottomRightPart
+
+                    bigFourMiddlePart:
+
+                        BL DrawPixel
+                        SUB x, #1
+                        CMP x, widthLimit
+
+                    BNE bigFourMiddlePart
+
+                    SUB heightLimit, #50
+
+                    bigFourTopLeftPart:
+
+                        BL DrawPixel
+                        SUB y, #1
+                        CMP y, heightLimit
+
+                    BNE bigFourTopLeftPart
+
+                    ADD x, #50
+                    ADD y, #50
+
+                    bigFourTopRightPart:
+
+                        BL DrawPixel
+                        SUB y, #1
+                        CMP y, heightLimit
+
+                    BNE bigFourTopRightPart
+
+                    SUB x, #50
+                    ADD y, #100
+
+                    .unreq x
+                    .unreq y
+                    .unreq widthLimit
+                    .unreq heightLimit
 
                     POP { r2, r3, pc }
 
@@ -502,4 +639,284 @@
                     SUB x, #50
                     ADD y, #100
 
+                    .unreq x
+                    .unreq y
+                    .unreq widthLimit
+                    .unreq heightLimit
+
                     POP { r2, r3, pc }
+
+    .globl DrawBigSix
+    DrawBigSix:     PUSH { r2, r3, lr }
+
+                    x .req r0
+                    y .req r1
+                    widthLimit .req r2
+                    ADD widthLimit, x, #50
+
+                    heightLimit .req r3
+                    SUB heightLimit, y, #50
+
+                    bigSixBottomPart:
+
+                        BL DrawPixel
+                        ADD x, #1
+                        CMP x, widthLimit
+
+                    BNE bigSixBottomPart
+
+                    bigSixBottomRightPart:
+
+                        BL DrawPixel
+                        SUB y, #1
+                        CMP y, heightLimit
+
+                    BNE bigSixBottomRightPart
+
+                    SUB x, #50
+                    ADD y, #50
+
+                    bigSixBottomLeftPart:
+
+                        BL DrawPixel
+                        SUB y, #1
+                        CMP y, heightLimit
+
+                    BNE bigSixBottomLeftPart
+
+                    bigSixMiddlePart:
+
+                        BL DrawPixel
+                        ADD x, #1
+                        CMP x, widthLimit
+
+                    BNE bigSixMiddlePart
+
+                    SUB x, #50
+                    SUB heightLimit, y, #50
+
+                    bigSixTopLeftPart:
+
+                        BL DrawPixel
+                        SUB y, #1
+                        CMP y, heightLimit
+
+                    BNE bigSixTopLeftPart
+
+                    bigSixTopPart:
+
+                        Bl DrawPixel
+                        ADD x, #1
+                        CMP x, widthLimit
+
+                    BNE bigSixTopPart
+
+                    SUB x, #50
+                    ADD y, #100
+
+                    .unreq x
+                    .unreq y
+                    .unreq widthLimit
+                    .unreq heightLimit
+
+                    POP { r2, r3, pc }
+
+    .globl DrawBigSeven
+    DrawBigSeven:   PUSH { r2, r3, lr }
+
+                    x .req r0
+                    y .req r1
+                    widthLimit .req r2
+                    MOV widthLimit, x
+
+                    heightLimit .req r3
+                    SUB heightLimit, y, #100
+
+                    ADD x, #50
+
+                    bigSevenBottomRightPart:
+
+                        BL DrawPixel
+                        SUB y, #1
+                        CMP y, heightLimit
+
+                    BNE bigSevenBottomRightPart
+
+                    bigSevenTopPart:
+
+                        BL DrawPixel
+                        SUB x, #1
+                        CMP x, widthLimit
+
+                    BNE bigSevenTopPart
+
+                    ADD y, #100
+
+                    .unreq x
+                    .unreq y
+                    .unreq widthLimit
+                    .unreq heightLimit
+
+                    POP { r2, r3, pc }
+
+    .globl DrawBigEight
+    DrawBigEight:   PUSH { r2, r3, lr }
+
+                    x .req r0
+                    y .req r1
+                    widthLimit .req r2
+                    ADD widthLimit, x, #50
+
+                    heightLimit .req r3
+                    SUB heightLimit, y, #50
+
+                    bigEightBottomPart:
+
+                        BL DrawPixel
+                        ADD x, #1
+                        CMP x, widthLimit
+
+                    BNE bigEightBottomPart
+
+                    bigEightBottomRightPart:
+
+                        BL DrawPixel
+                        SUB y, #1
+                        CMP y, heightLimit
+
+                    BNE bigEightBottomRightPart
+
+                    SUB x, #50
+                    ADD y, #50
+
+                    bigEightBottomLeftPart:
+
+                        BL DrawPixel
+                        SUB y, #1
+                        CMP y, heightLimit
+
+                    BNE bigEightBottomLeftPart
+
+                    bigEightMiddlePart:
+
+                        BL DrawPixel
+                        ADD x, #1
+                        CMP x, widthLimit
+
+                    BNE bigEightMiddlePart
+
+                    SUB heightLimit, y, #50
+
+                    bigEightTopRightPart:
+
+                        BL DrawPixel
+                        SUB y, #1
+                        CMP y, heightLimit
+
+                    BNE bigEightTopRightPart
+
+                    SUB x, #50
+                    ADD y, #50
+
+                    bigEightTopLeftPart:
+
+                        BL DrawPixel
+                        SUB y, #1
+                        CMP y, heightLimit
+
+                    BNE bigEightTopLeftPart
+
+                    bigEightTopPart:
+
+                        BL DrawPixel
+                        ADD x, #1
+                        CMP x, widthLimit
+
+                    BNE bigEightTopPart
+
+                    SUB x, #50
+                    ADD y, #100
+
+                    .unreq x
+                    .unreq y
+                    .unreq widthLimit
+                    .unreq heightLimit
+
+                    POP { r2, r3, pc }
+
+    .globl DrawBigNine
+    DrawBigNine:   PUSH { r2, r3, lr }
+
+                    x .req r0
+                    y .req r1
+                    widthLimit .req r2
+                    ADD widthLimit, x, #50
+
+                    heightLimit .req r3
+                    SUB heightLimit, y, #50
+
+                    bigNineBottomPart:
+
+                        BL DrawPixel
+                        ADD x, #1
+                        CMP x, widthLimit
+
+                    BNE bigNineBottomPart
+
+                    bigNineBottomRightPart:
+
+                        BL DrawPixel
+                        SUB y, #1
+                        CMP y, heightLimit
+
+                    BNE bigNineBottomRightPart
+
+                    SUB x, #50
+
+                    bigNineMiddlePart:
+
+                        BL DrawPixel
+                        ADD x, #1
+                        CMP x, widthLimit
+
+                    BNE bigNineMiddlePart
+
+                    SUB heightLimit, y, #50
+
+                    bigNineTopRightPart:
+
+                        BL DrawPixel
+                        SUB y, #1
+                        CMP y, heightLimit
+
+                    BNE bigNineTopRightPart
+
+                    SUB x, #50
+                    ADD y, #50
+
+                    bigNineTopLeftPart:
+
+                        BL DrawPixel
+                        SUB y, #1
+                        CMP y, heightLimit
+
+                    BNE bigNineTopLeftPart
+
+                    bigNineTopPart:
+
+                        BL DrawPixel
+                        ADD x, #1
+                        CMP x, widthLimit
+
+                    BNE bigNineTopPart
+
+                    SUB x, #50
+                    ADD y, #100
+
+                    .unreq x
+                    .unreq y
+                    .unreq widthLimit
+                    .unreq heightLimit
+
+                    POP { r2, r3, pc }
+

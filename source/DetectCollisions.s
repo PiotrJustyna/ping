@@ -220,17 +220,25 @@
                         POP { r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, pc }
 
     .globl BottomPlayerScores
-    BottomPlayerScores: PUSH { r0, r1, lr }
+    BottomPlayerScores: PUSH { r0, r1, r2, r3, lr }
 
                         bottomPlayersScoreAddress .req r0
                         LDR bottomPlayersScoreAddress, =BottomPlayerScore
 
                         bottomPlayersScore .req r1
-
                         LDR bottomPlayersScore, [bottomPlayersScoreAddress]
                         ADD bottomPlayersScore, #1
 
-                        CMP bottomPlayersScore, #2
+                        currentFrameTime .req r2
+                        LDR currentFrameTime, =FrameTime
+
+                        slowFrameTime .req r3
+                        LDR slowFrameTime, =SlowFrameTime
+                        LDR slowFrameTime, [slowFrameTime]
+
+                        STR slowFrameTime, [currentFrameTime]
+
+                        CMP bottomPlayersScore, #9
                         MOVHI bottomPlayersScore, #0
 
                         STR bottomPlayersScore, [bottomPlayersScoreAddress]
@@ -239,21 +247,31 @@
 
                         .unreq bottomPlayersScoreAddress
                         .unreq bottomPlayersScore
+                        .unreq currentFrameTime
+                        .unreq slowFrameTime
 
-                        POP { r0, r1, pc }
+                        POP { r0, r1, r2, r3, pc }
 
     .globl TopPlayerScores
-    TopPlayerScores:    PUSH { r0, r1, lr }
+    TopPlayerScores:    PUSH { r0, r1, r2, r3, lr }
 
                         topPlayersScoreAddress .req r0
                         LDR topPlayersScoreAddress, =TopPlayerScore
 
                         topPlayersScore .req r1
-
                         LDR topPlayersScore, [topPlayersScoreAddress]
                         ADD topPlayersScore, #1
 
-                        CMP topPlayersScore, #2
+                        currentFrameTime .req r2
+                        LDR currentFrameTime, =FrameTime
+
+                        slowFrameTime .req r3
+                        LDR slowFrameTime, =SlowFrameTime
+                        LDR slowFrameTime, [slowFrameTime]
+
+                        STR slowFrameTime, [currentFrameTime]
+
+                        CMP topPlayersScore, #9
                         MOVHI topPlayersScore, #0
 
                         STR topPlayersScore, [topPlayersScoreAddress]
@@ -262,5 +280,7 @@
 
                         .unreq topPlayersScoreAddress
                         .unreq topPlayersScore
+                        .unreq currentFrameTime
+                        .unreq slowFrameTime
 
-                        POP { r0, r1, pc }
+                        POP { r0, r1, r2, r3, pc }

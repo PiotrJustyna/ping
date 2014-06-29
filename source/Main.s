@@ -57,8 +57,8 @@
 
                 timespan .req r2
 
-                frameTime .req r3
-                LDR frameTime, =1000
+                frameTimeAddress .req r3
+                LDR frameTimeAddress, =FrameTime
 
                 timerAddress .req r4
                 LDR timerAddress, =TimerAddress
@@ -72,11 +72,14 @@
                 SUB lastEndTimestampBeforeRegisterOverflow, #1
 
                 endTimestamp .req r5
-                MOV endTimestamp, currentTimestamp
-                ADD endTimestamp, frameTime
-
                 xSafeCopy .req r8
                 previousEndTimestamp .req r9
+
+                frameTime .req r10
+                LDR frameTime, [frameTimeAddress]
+
+                MOV endTimestamp, currentTimestamp
+                ADD endTimestamp, frameTime
 
                 BL SetGPIO
                 BL DrawTopPaddle
@@ -84,10 +87,11 @@
                 BL DrawFrame
                 BL DrawTopAvatar
                 BL DrawBottomAvatar
+                BL DrawScore
 
                 whileTrue:
 
-                    BL CaptureStartTimestamp
+                    //BL CaptureStartTimestamp
 
                     //BL WipeBall   // TODO: For now
                     BL DrawNet
@@ -96,13 +100,14 @@
                     BL DrawBall
                     BL DetectCollisions
 
+                    /*
                     BL CaptureEndTimestamp
-
                     MOV xSafeCopy, x
                     BL MeasureTimespan
                     MOV timespan, r0
                     MOV x, xSafeCopy
                     BL DrawWord
+                    */
 
                     waitForNextFrame:
 
@@ -122,9 +127,13 @@
                             MOV previousEndTimestamp, endTimestamp
                             ADD endTimestamp, frameTime
                             CMP previousEndTimestamp, endTimestamp                                  // overflow?
-                                BLS whileTrue                                                       // no - continue
+                                BLS getNewFrameTime                                                 // no - continue
                                 CMP currentTimestamp, endTimestamp                                  // yes - if endTimestamp is overflown, assign last available 32-bit value instead (all ones)
                                 MOVHI endTimestamp, lastEndTimestampBeforeRegisterOverflow
+
+                    getNewFrameTime:
+
+                        LDR frameTime, [frameTimeAddress]
 
                 B whileTrue
 

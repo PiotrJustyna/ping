@@ -9,7 +9,7 @@
     .align 4
 
     .globl FrameBufferInfo
-    /*
+    ///*
     FrameBufferInfo:    .int 1920   // #0 Width
                         .int 1080   // #4 Height
                         .int 1920   // #8 Virtual Width
@@ -20,8 +20,8 @@
                         .int 0      // #28 Y Margin
                         .int 0      // #32 Framebuffer pointer. Set by the GPU.
                         .int 0      // #36 Framebuffer size, set by the GPU.
-    */
-    ///*
+    //*/
+    /*
     FrameBufferInfo:    .int 1280   // #0 Width
                         .int 1024   // #4 Height
                         .int 1280   // #8 Virtual Width
@@ -32,12 +32,21 @@
                         .int 0      // #28 Y Margin
                         .int 0      // #32 Framebuffer pointer. Set by the GPU.
                         .int 0      // #36 Framebuffer size, set by the GPU.
-    //*/
+    */
 
     .align 1
 
     .globl FramebufferInfoAddress
     FramebufferInfoAddress: .int 0
+
+    .globl FrameTime
+    FrameTime:   .int 1000
+
+    .globl FastFrameTime
+    FastFrameTime:   .int 1000
+
+    .globl SlowFrameTime
+    SlowFrameTime:   .int 1000
 
     .globl RedColour
     RedColour: .int 0b1111100000000000
@@ -94,10 +103,10 @@
     BallHeight:  .int 10
 
     .globl BallDirectionX
-    BallDirectionX:  .int 0
+    BallDirectionX:  .int 1
 
     .globl BallDirectionY
-    BallDirectionY:  .int 0
+    BallDirectionY:  .int 1
 
     .globl TableLeftBorder
     TableLeftBorder:    .int 5

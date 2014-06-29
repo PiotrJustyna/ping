@@ -86,7 +86,7 @@
                             ADD pixelAddress, pixelAddress
                             ADD pixelAddress, framebufferAddress
                             STRH colour, [pixelAddress]
-
+ 
                             ADD x, #1
                             ADD columnCounter, #1
                             CMP columnCounter, sizeInPixels
@@ -209,7 +209,7 @@
                 POP { r0, r1, r2, r3, r4, r5, pc }
 
     .globl DrawNet
-    DrawNet:    PUSH { r0, r1, r2, r3, r4, lr }
+    DrawNet:    PUSH { r0, r1, r2, r3, r4, r5, lr }
 
                 x .req r0
                 MOV x, #1
@@ -227,6 +227,12 @@
                 LDR screenHeight, =FrameBufferInfo
                 LDR screenHeight, [screenHeight, #4]
 
+                ballWidth .req r5
+                LDR ballWidth, =BallWidth
+                LDR ballWidth, [ballWidth]
+
+                ADD rightBorder, ballWidth
+
                 MOV y, screenHeight, LSR #1
 
                 netLoop:
@@ -241,15 +247,16 @@
                     ADDNE x, #1
                     CMP x, rightBorder
 
-                BNE netLoop
+                BLS netLoop
 
                 .unreq x
                 .unreq y
                 .unreq dashCounter
                 .unreq rightBorder
                 .unreq screenHeight
+                .unreq ballWidth
 
-                POP { r0, r1, r2, r3, r4, pc }
+                POP { r0, r1, r2, r3, r4, r5, pc }
 
     .globl WipeBall
     WipeBall:   PUSH { r0, r1, r2, r3, r4, r5, r6, lr }
@@ -419,6 +426,34 @@
                 BLEQ DrawBigTwo
                 BEQ drawBottomScore
 
+                CMP scoreToDraw, #3
+                BLEQ DrawBigThree
+                BEQ drawBottomScore
+
+                CMP scoreToDraw, #4
+                BLEQ DrawBigFour
+                BEQ drawBottomScore
+
+                CMP scoreToDraw, #5
+                BLEQ DrawBigFive
+                BEQ drawBottomScore
+
+                CMP scoreToDraw, #6
+                BLEQ DrawBigSix
+                BEQ drawBottomScore
+
+                CMP scoreToDraw, #7
+                BLEQ DrawBigSeven
+                BEQ drawBottomScore
+
+                CMP scoreToDraw, #8
+                BLEQ DrawBigEight
+                BEQ drawBottomScore
+
+                CMP scoreToDraw, #9
+                BLEQ DrawBigNine
+                BEQ drawBottomScore
+
                 drawBottomScore:
 
                     ADD y, #140
@@ -438,6 +473,34 @@
 
                     CMP scoreToDraw, #2
                     BLEQ DrawBigTwo
+                    BEQ drawingScoresFinished
+
+                    CMP scoreToDraw, #3
+                    BLEQ DrawBigThree
+                    BEQ drawingScoresFinished
+
+                    CMP scoreToDraw, #4
+                    BLEQ DrawBigFour
+                    BEQ drawingScoresFinished
+
+                    CMP scoreToDraw, #5
+                    BLEQ DrawBigFive
+                    BEQ drawingScoresFinished
+
+                    CMP scoreToDraw, #6
+                    BLEQ DrawBigSix
+                    BEQ drawingScoresFinished
+
+                    CMP scoreToDraw, #7
+                    BLEQ DrawBigSeven
+                    BEQ drawingScoresFinished
+
+                    CMP scoreToDraw, #8
+                    BLEQ DrawBigEight
+                    BEQ drawingScoresFinished
+
+                    CMP scoreToDraw, #9
+                    BLEQ DrawBigNine
                     BEQ drawingScoresFinished
 
                 drawingScoresFinished:
