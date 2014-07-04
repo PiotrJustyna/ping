@@ -79,142 +79,152 @@
         .globl MoveTopPaddle
         MoveTopPaddle:  PUSH { r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, lr }
 
-                        paddleHeight .req r2
-                        LDR paddleHeight, =PaddleHeight
-                        LDR paddleHeight, [paddleHeight]
+                        canPaddlesMove .req r2
+                        LDR canPaddlesMove, =CanPaddlesMove
+                        LDR canPaddlesMove, [canPaddlesMove]
 
-                        remainingPaddleHeight .req r3
-                        MOV remainingPaddleHeight, paddleHeight
+                        CMP canPaddlesMove, #0
+                            BEQ endOfTopPaddleButtonChecking        // Paddles cannot move
 
-                        paddleWidth .req r4
-                        LDR paddleWidth, =PaddleWidth
-                        LDR paddleWidth, [paddleWidth]
+                            .unreq canPaddlesMove
+                            paddleHeight .req r2
+                            LDR paddleHeight, =PaddleHeight
+                            LDR paddleHeight, [paddleHeight]
 
-                        topPaddleLocationX .req r5
-                        LDR topPaddleLocationX, =TopPaddleLocationX
+                            remainingPaddleHeight .req r3
+                            MOV remainingPaddleHeight, paddleHeight
 
-                        scoreMargin .req r6
-                        LDR scoreMargin, =ScoreMargin
-                        LDR scoreMargin, [scoreMargin]
-                        ADD scoreMargin, #1
+                            paddleWidth .req r4
+                            LDR paddleWidth, =PaddleWidth
+                            LDR paddleWidth, [paddleWidth]
 
-                        screenWidth .req r7
-                        LDR screenWidth, =FrameBufferInfo
-                        LDR screenWidth, [screenWidth, #0]
-                        SUB screenWidth, scoreMargin
-                        SUB screenWidth, paddleWidth
-                        ADD screenWidth, #1
+                            topPaddleLocationX .req r5
+                            LDR topPaddleLocationX, =TopPaddleLocationX
 
-                        x .req r0
-                        LDR x, [topPaddleLocationX]
+                            scoreMargin .req r6
+                            LDR scoreMargin, =ScoreMargin
+                            LDR scoreMargin, [scoreMargin]
+                            ADD scoreMargin, #1
 
-                        y .req r1
-                        MOV y, paddleHeight, LSL #1                             // y = paddleHeight * 2
+                            screenWidth .req r7
+                            LDR screenWidth, =FrameBufferInfo
+                            LDR screenWidth, [screenWidth, #0]
+                            SUB screenWidth, scoreMargin
+                            SUB screenWidth, paddleWidth
+                            ADD screenWidth, #1
 
-                        pinLevels .req r8
-                        LDR pinLevels, =0x20200034
-                        LDR pinLevels, [pinLevels]
-                        LSR pinLevels, #7                                       // checking the level of 7th pin (left button)
+                            x .req r0
+                            LDR x, [topPaddleLocationX]
 
-                        ballPositionX .req r9
-                        LDR ballPositionX, =BallPositionX
-                        LDR ballPositionX, [ballPositionX]
+                            y .req r1
+                            MOV y, paddleHeight, LSL #1                             // y = paddleHeight * 2
 
-                        ballPositionY .req r10
-                        LDR ballPositionY, =BallPositionY
-                        LDR ballPositionY, [ballPositionY]
+                            pinLevels .req r8
+                            LDR pinLevels, =0x20200034
+                            LDR pinLevels, [pinLevels]
+                            LSR pinLevels, #7                                       // checking the level of 7th pin (left button)
 
-                        ballWidth .req r11
-                        LDR ballWidth, =BallWidth
-                        LDR ballWidth, [ballWidth]
+                            ballPositionX .req r9
+                            LDR ballPositionX, =BallPositionX
+                            LDR ballPositionX, [ballPositionX]
 
-                        ADD ballPositionX, ballWidth
+                            ballPositionY .req r10
+                            LDR ballPositionY, =BallPositionY
+                            LDR ballPositionY, [ballPositionY]
 
-                        // Moving Left
-                            TST pinLevels, #1                                           // Is input on pin 7 detected?
-                            BEQ checkRightButton                                        // If not, and zero is detected, check the right button (pin 8).
-                                CMP x, ballPositionX                                    
-                                    BNE ballMissedMovingLeft
-                                    CMP ballPositionY, y
-                                    BLS endOfButtonChecking
+                            ballWidth .req r11
+                            LDR ballWidth, =BallWidth
+                            LDR ballWidth, [ballWidth]
 
-                                        ballMissedMovingLeft:
+                            ADD ballPositionX, ballWidth
 
-                                            CMP x, #1                                   // Paddle cannot cross the left border.
-                                            BEQ endOfButtonChecking                     // If it does, stop it.
-                                                BL WipeRightSideOfAPaddle
-                                                SUB x, #1
-
-                                                movingLeftSideOfTopPaddleRowLoop:
-
-                                                    BL DrawPixel
-
-                                                    SUB y, #1
-                                                    SUB remainingPaddleHeight, #1
-                                                    CMP remainingPaddleHeight, #0
-
-                                                BNE movingLeftSideOfTopPaddleRowLoop
-
-                                                ADD y, paddleHeight
-                                                MOV remainingPaddleHeight, paddleHeight
-                                                STR x, [topPaddleLocationX]
-                                                BL endOfButtonChecking
-                        // <- Moving Left
-
-                        // Moving Right
-                            checkRightButton:
-
-                                LSR pinLevels, #1                                           // Now, checking the 8th pin.
+                            // Moving Left
                                 TST pinLevels, #1                                           // Is input on pin 7 detected?
-                                BEQ endOfButtonChecking                                     // If not, finish button checking. No more buttons.
-                                    SUB ballPositionX, paddleWidth
-                                    SUB ballPositionX, ballWidth
-                                    SUB ballPositionX, #1
+                                BEQ checkRightButton                                        // If not, and zero is detected, check the right button (pin 8).
+                                    BL TopPlayerShootsLeft
                                     CMP x, ballPositionX
-                                    BNE ballMissedMovingRight
-                                    CMP ballPositionY, y
-                                    BLS endOfButtonChecking
+                                        BNE ballMissedMovingLeft
+                                        CMP ballPositionY, y
+                                        BLS endOfTopPaddleButtonChecking
 
-                                        ballMissedMovingRight:
+                                            ballMissedMovingLeft:
 
-                                            CMP x, screenWidth                              // Check one more thing: paddle cannot cross the right border
-                                            BEQ endOfButtonChecking                         // If it is crossing the right border, it cannot move further, finish button checking.
-                                                BL WipeLeftSideOfAPaddle                  // If not, wipe the left side and move right.
-                                                ADD x, paddleWidth
+                                                CMP x, #1                                   // Paddle cannot cross the left border.
+                                                BEQ endOfTopPaddleButtonChecking            // If it does, stop it.
+                                                    BL WipeRightSideOfAPaddle
+                                                    SUB x, #1
 
-                                                movingRightSideOfTopPaddleRowLoop:
+                                                    movingLeftSideOfTopPaddleRowLoop:
 
-                                                    BL DrawPixel
+                                                        BL DrawPixel
 
-                                                    SUB y, #1
-                                                    SUB remainingPaddleHeight, #1
-                                                    CMP remainingPaddleHeight, #0
+                                                        SUB y, #1
+                                                        SUB remainingPaddleHeight, #1
+                                                        CMP remainingPaddleHeight, #0
 
-                                                BNE movingRightSideOfTopPaddleRowLoop
+                                                    BNE movingLeftSideOfTopPaddleRowLoop
 
-                                                ADD y, paddleHeight
-                                                SUB x, paddleWidth
-                                                ADD x, #1
-                                                MOV remainingPaddleHeight, paddleHeight
-                                                STR x, [topPaddleLocationX]
-                        // <- Moving Right
+                                                    ADD y, paddleHeight
+                                                    MOV remainingPaddleHeight, paddleHeight
+                                                    STR x, [topPaddleLocationX]
+                                                    BL endOfTopPaddleButtonChecking
+                            // <- Moving Left
 
-                        endOfButtonChecking:
+                            // Moving Right
+                                checkRightButton:
 
-                        .unreq paddleWidth
-                        .unreq paddleHeight
-                        .unreq remainingPaddleHeight
-                        .unreq topPaddleLocationX
-                        .unreq x
-                        .unreq y
-                        .unreq pinLevels
-                        .unreq scoreMargin
-                        .unreq screenWidth
-                        .unreq ballPositionX
-                        .unreq ballPositionY
-                        .unreq ballWidth
+                                    LSR pinLevels, #1                                           // Now, checking the 8th pin.
+                                    TST pinLevels, #1                                           // Is input on pin 7 detected?
+                                    BEQ endOfTopPaddleButtonChecking                            // If not, finish button checking. No more buttons.
+                                        BL TopPlayerShootsRight
+                                        SUB ballPositionX, paddleWidth
+                                        SUB ballPositionX, ballWidth
+                                        SUB ballPositionX, #1
+                                        CMP x, ballPositionX
+                                        BNE ballMissedMovingRight
+                                        CMP ballPositionY, y
+                                        BLS endOfTopPaddleButtonChecking
 
-                        POP { r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, pc }
+                                            ballMissedMovingRight:
+
+                                                CMP x, screenWidth                              // Check one more thing: paddle cannot cross the right border
+                                                BEQ endOfTopPaddleButtonChecking                // If it is crossing the right border, it cannot move further, finish button checking.
+                                                    BL WipeLeftSideOfAPaddle                    // If not, wipe the left side and move right.
+                                                    ADD x, paddleWidth
+
+                                                    movingRightSideOfTopPaddleRowLoop:
+
+                                                        BL DrawPixel
+
+                                                        SUB y, #1
+                                                        SUB remainingPaddleHeight, #1
+                                                        CMP remainingPaddleHeight, #0
+
+                                                    BNE movingRightSideOfTopPaddleRowLoop
+
+                                                    ADD y, paddleHeight
+                                                    SUB x, paddleWidth
+                                                    ADD x, #1
+                                                    MOV remainingPaddleHeight, paddleHeight
+                                                    STR x, [topPaddleLocationX]
+                            // <- Moving Right
+
+                            endOfTopPaddleButtonChecking:
+
+                            .unreq paddleWidth
+                            .unreq paddleHeight
+                            .unreq remainingPaddleHeight
+                            .unreq topPaddleLocationX
+                            .unreq x
+                            .unreq y
+                            .unreq pinLevels
+                            .unreq scoreMargin
+                            .unreq screenWidth
+                            .unreq ballPositionX
+                            .unreq ballPositionY
+                            .unreq ballWidth
+
+                            POP { r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, pc }
     // <- Top Paddle
 
     // Bottom Paddle
@@ -296,132 +306,144 @@
         .globl MoveBottomPaddle
         MoveBottomPaddle:   PUSH { r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, lr }
 
-                            paddleHeight .req r2
-                            LDR paddleHeight, =PaddleHeight
-                            LDR paddleHeight, [paddleHeight]
+                            canPaddlesMove .req r2
+                            LDR canPaddlesMove, =CanPaddlesMove
+                            LDR canPaddlesMove, [canPaddlesMove]
 
-                            remainingPaddleHeight .req r3
-                            MOV remainingPaddleHeight, paddleHeight
+                            CMP canPaddlesMove, #0
+                                BEQ endOfBottomPaddleButtonChecking     // Paddles cannot move
 
-                            paddleWidth .req r4
-                            LDR paddleWidth, =PaddleWidth
-                            LDR paddleWidth, [paddleWidth]
+                                .unreq canPaddlesMove
+                                paddleHeight .req r2
+                                LDR paddleHeight, =PaddleHeight
+                                LDR paddleHeight, [paddleHeight]
 
-                            bottomPaddleLocationX .req r5
-                            LDR bottomPaddleLocationX, =BottomPaddleLocationX
+                                remainingPaddleHeight .req r3
+                                MOV remainingPaddleHeight, paddleHeight
 
-                            scoreMargin .req r6
-                            LDR scoreMargin, =ScoreMargin
-                            LDR scoreMargin, [scoreMargin]
-                            ADD scoreMargin, #1
+                                paddleWidth .req r4
+                                LDR paddleWidth, =PaddleWidth
+                                LDR paddleWidth, [paddleWidth]
 
-                            screenWidth .req r7
-                            LDR screenWidth, =FrameBufferInfo
-                            LDR screenWidth, [screenWidth, #0]
-                            SUB screenWidth, scoreMargin
-                            SUB screenWidth, paddleWidth
-                            ADD screenWidth, #1
+                                bottomPaddleLocationX .req r5
+                                LDR bottomPaddleLocationX, =BottomPaddleLocationX
 
-                            screenHeight .req r8
-                            LDR screenHeight, =FrameBufferInfo
-                            LDR screenHeight, [screenHeight, #4]
+                                scoreMargin .req r6
+                                LDR scoreMargin, =ScoreMargin
+                                LDR scoreMargin, [scoreMargin]
+                                ADD scoreMargin, #1
 
-                            x .req r0
-                            LDR x, [bottomPaddleLocationX]
+                                screenWidth .req r7
+                                LDR screenWidth, =FrameBufferInfo
+                                LDR screenWidth, [screenWidth, #0]
+                                SUB screenWidth, scoreMargin
+                                SUB screenWidth, paddleWidth
+                                ADD screenWidth, #1
 
-                            y .req r1
-                            SUB y, screenHeight, paddleHeight
-                            SUB y, #1
+                                screenHeight .req r8
+                                LDR screenHeight, =FrameBufferInfo
+                                LDR screenHeight, [screenHeight, #4]
 
-                            pinLevels .req r9
-                            LDR pinLevels, =0x20200034
-                            LDR pinLevels, [pinLevels]
-                            LSR pinLevels, #24                                       // checking the level of 24th pin (left button)
+                                x .req r0
+                                LDR x, [bottomPaddleLocationX]
 
-                            ballPositionX .req r10
-                            LDR ballPositionX, =BallPositionX
-                            LDR ballPositionX, [ballPositionX]
+                                y .req r1
+                                SUB y, screenHeight, paddleHeight
+                                SUB y, #1
 
-                            ballPositionY .req r11
-                            LDR ballPositionY, =BallPositionY
-                            LDR ballPositionY, [ballPositionY]
+                                pinLevels .req r9
+                                LDR pinLevels, =0x20200034
+                                LDR pinLevels, [pinLevels]
+                                LSR pinLevels, #24                                       // checking the level of 24th pin (left button)
 
-                            ballWidth .req r12
-                            LDR ballWidth, =BallWidth
-                            LDR ballWidth, [ballWidth]
+                                ballPositionX .req r10
+                                LDR ballPositionX, =BallPositionX
+                                LDR ballPositionX, [ballPositionX]
 
-                            ADD ballPositionX, ballWidth
+                                ballPositionY .req r11
+                                LDR ballPositionY, =BallPositionY
+                                LDR ballPositionY, [ballPositionY]
 
-                            // Moving Left
-                                TST pinLevels, #1                                           // Is input on pin 24 detected?
-                                BEQ checkRightButtonOfBottomController                      // If not, and zero is detected, check the right button (pin 23).
-                                    CMP x, ballPositionX                                    
-                                        BNE ballMissedWhileMovingBottomPaddleLeft
-                                        CMP ballPositionY, y
-                                        BLS endOfBottomPaddleButtonChecking
+                                ballWidth .req r12
+                                LDR ballWidth, =BallWidth
+                                LDR ballWidth, [ballWidth]
 
-                                            ballMissedWhileMovingBottomPaddleLeft:
+                                ADD ballPositionX, ballWidth
 
-                                                CMP x, #1                                       // Paddle cannot cross the left border.
-                                                BEQ endOfBottomPaddleButtonChecking             // If it does, stop it.
-                                                    BL WipeRightSideOfAPaddle
-                                                    SUB x, #1
+                                // Moving Left
+                                    TST pinLevels, #1                                           // Is input on pin 24 detected?
+                                    BEQ checkRightButtonOfBottomController                      // If not, and zero is detected, check the right button (pin 23).
+                                        BL BottomPlayerShootsLeft
+                                        CMP x, ballPositionX                                    
+                                            BNE ballMissedWhileMovingBottomPaddleLeft
+                                            CMP ballPositionY, y
+                                            //BLS endOfBottomPaddleButtonChecking
+                                            BHI endOfBottomPaddleButtonChecking
 
-                                                    movingLeftSideOfBottomPaddleRowLoop:
+                                                ballMissedWhileMovingBottomPaddleLeft:
 
-                                                        BL DrawPixel
+                                                    CMP x, #1                                       // Paddle cannot cross the left border.
+                                                    BEQ endOfBottomPaddleButtonChecking             // If it does, stop it.
+                                                        BL WipeRightSideOfAPaddle
+                                                        SUB x, #1
 
-                                                        SUB y, #1
-                                                        SUB remainingPaddleHeight, #1
-                                                        CMP remainingPaddleHeight, #0
+                                                        movingLeftSideOfBottomPaddleRowLoop:
 
-                                                    BNE movingLeftSideOfBottomPaddleRowLoop
+                                                            BL DrawPixel
 
-                                                    ADD y, paddleHeight
-                                                    MOV remainingPaddleHeight, paddleHeight
-                                                    STR x, [bottomPaddleLocationX]
-                                                    BL endOfBottomPaddleButtonChecking
-                            // <- Moving Left
+                                                            SUB y, #1
+                                                            SUB remainingPaddleHeight, #1
+                                                            CMP remainingPaddleHeight, #0
 
-                            // Moving Right
-                                checkRightButtonOfBottomController:
+                                                        BNE movingLeftSideOfBottomPaddleRowLoop
 
-                                    LDR pinLevels, =0x20200034
-                                    LDR pinLevels, [pinLevels]
-                                    LSR pinLevels, #23                                           // Now, checking the 23th pin.
-                                    TST pinLevels, #1                                           // Is input on pin 23 detected?
-                                    BEQ endOfBottomPaddleButtonChecking                         // If not, finish button checking. No more buttons.
-                                        SUB ballPositionX, paddleWidth
-                                        SUB ballPositionX, ballWidth
-                                        SUB ballPositionX, #1
-                                        CMP x, ballPositionX
-                                        BNE ballMissedWhileMovingBottomPaddleRight
-                                        CMP ballPositionY, y
-                                        BLS endOfBottomPaddleButtonChecking
+                                                        ADD y, paddleHeight
+                                                        MOV remainingPaddleHeight, paddleHeight
+                                                        STR x, [bottomPaddleLocationX]
+                                                        BL endOfBottomPaddleButtonChecking
+                                // <- Moving Left
 
-                                            ballMissedWhileMovingBottomPaddleRight:
+                                // Moving Right
+                                    checkRightButtonOfBottomController:
 
-                                                CMP x, screenWidth                              // Check one more thing: paddle cannot cross the right border
-                                                BEQ endOfBottomPaddleButtonChecking             // If it is crossing the right border, it cannot move further, finish button checking.
-                                                    BL WipeLeftSideOfAPaddle                    // If not, wipe the left side and move right.
-                                                    ADD x, paddleWidth
+                                        LDR pinLevels, =0x20200034
+                                        LDR pinLevels, [pinLevels]
+                                        LSR pinLevels, #23                                           // Now, checking the 23th pin.
+                                        TST pinLevels, #1                                           // Is input on pin 23 detected?
+                                        BEQ endOfBottomPaddleButtonChecking                         // If not, finish button checking. No more buttons.
+                                            BL BottomPlayerShootsRight
+                                            SUB ballPositionX, paddleWidth
+                                            SUB ballPositionX, ballWidth
+                                            SUB ballPositionX, #1
+                                            CMP x, ballPositionX
+                                            BNE ballMissedWhileMovingBottomPaddleRight
+                                            CMP ballPositionY, y
+                                            //BLS endOfBottomPaddleButtonChecking
+                                            BHI endOfBottomPaddleButtonChecking
 
-                                                    movingRightSideOfBottomPaddleRowLoop:
+                                                ballMissedWhileMovingBottomPaddleRight:
 
-                                                        BL DrawPixel
+                                                    CMP x, screenWidth                              // Check one more thing: paddle cannot cross the right border
+                                                    BEQ endOfBottomPaddleButtonChecking             // If it is crossing the right border, it cannot move further, finish button checking.
+                                                        BL WipeLeftSideOfAPaddle                    // If not, wipe the left side and move right.
+                                                        ADD x, paddleWidth
 
-                                                        SUB y, #1
-                                                        SUB remainingPaddleHeight, #1
-                                                        CMP remainingPaddleHeight, #0
+                                                        movingRightSideOfBottomPaddleRowLoop:
 
-                                                    BNE movingRightSideOfBottomPaddleRowLoop
+                                                            BL DrawPixel
 
-                                                    ADD y, paddleHeight
-                                                    SUB x, paddleWidth
-                                                    ADD x, #1
-                                                    MOV remainingPaddleHeight, paddleHeight
-                                                    STR x, [bottomPaddleLocationX]
-                            // <- Moving Right
+                                                            SUB y, #1
+                                                            SUB remainingPaddleHeight, #1
+                                                            CMP remainingPaddleHeight, #0
+
+                                                        BNE movingRightSideOfBottomPaddleRowLoop
+
+                                                        ADD y, paddleHeight
+                                                        SUB x, paddleWidth
+                                                        ADD x, #1
+                                                        MOV remainingPaddleHeight, paddleHeight
+                                                        STR x, [bottomPaddleLocationX]
+                                // <- Moving Right
 
                             endOfBottomPaddleButtonChecking:
 

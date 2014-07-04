@@ -78,6 +78,12 @@
                 frameTime .req r10
                 LDR frameTime, [frameTimeAddress]
 
+                canBallMoveAddress .req r11
+                LDR canBallMoveAddress, =CanBallMove
+
+                canBallMove .req r12
+                LDR canBallMove, [canBallMoveAddress]
+
                 MOV endTimestamp, currentTimestamp
                 ADD endTimestamp, frameTime
 
@@ -91,49 +97,55 @@
 
                 whileTrue:
 
-                    //BL CaptureStartTimestamp
+                    // BL CaptureStartTimestamp
 
                     //BL WipeBall   // TODO: For now
                     BL DrawNet
                     BL MoveTopPaddle
                     BL MoveBottomPaddle
                     BL DrawBall
-                    BL DetectCollisions
 
-                    /*
-                    BL CaptureEndTimestamp
-                    MOV xSafeCopy, x
-                    BL MeasureTimespan
-                    MOV timespan, r0
-                    MOV x, xSafeCopy
-                    BL DrawWord
-                    */
+                    CMP canBallMove, #0
+                        BEQ dontDetectCollisions
+                        BL DetectCollisions
 
-                    waitForNextFrame:
+                    dontDetectCollisions:
 
-                        LDR currentTimestamp, [timerAddress]
-                        CMP endTimestamp, currentTimestamp
-                        BHI waitForNextFrame                    // not yet time for next frame
-                        BEQ checkLastTickBeforeOverflow         // it's time for next frame, but check if the endTimestamp should be reset to frameTime
-                        B addFrameTime                          // otherwise, it's time for next frame
+                        /*
+                        BL CaptureEndTimestamp
+                        MOV xSafeCopy, x
+                        BL MeasureTimespan
+                        MOV timespan, r0
+                        MOV x, xSafeCopy
+                        BL DrawWord
+                        */
 
-                        checkLastTickBeforeOverflow:
+                        waitForNextFrame:
 
-                            CMP endTimestamp, lastEndTimestampBeforeRegisterOverflow
-                            MOVEQ endTimestamp, frameTime
+                            LDR currentTimestamp, [timerAddress]
+                            CMP endTimestamp, currentTimestamp
+                            BHI waitForNextFrame                    // not yet time for next frame
+                            BEQ checkLastTickBeforeOverflow         // it's time for next frame, but check if the endTimestamp should be reset to frameTime
+                            B addFrameTime                          // otherwise, it's time for next frame
 
-                        addFrameTime:
+                            checkLastTickBeforeOverflow:
 
-                            MOV previousEndTimestamp, endTimestamp
-                            ADD endTimestamp, frameTime
-                            CMP previousEndTimestamp, endTimestamp                                  // overflow?
-                                BLS getNewFrameTime                                                 // no - continue
-                                CMP currentTimestamp, endTimestamp                                  // yes - if endTimestamp is overflown, assign last available 32-bit value instead (all ones)
-                                MOVHI endTimestamp, lastEndTimestampBeforeRegisterOverflow
+                                CMP endTimestamp, lastEndTimestampBeforeRegisterOverflow
+                                MOVEQ endTimestamp, frameTime
 
-                    getNewFrameTime:
+                            addFrameTime:
 
-                        LDR frameTime, [frameTimeAddress]
+                                MOV previousEndTimestamp, endTimestamp
+                                ADD endTimestamp, frameTime
+                                CMP previousEndTimestamp, endTimestamp                                  // overflow?
+                                    BLS getNewFrameTime                                                 // no - continue
+                                    CMP currentTimestamp, endTimestamp                                  // yes - if endTimestamp is overflown, assign last available 32-bit value instead (all ones)
+                                    MOVHI endTimestamp, lastEndTimestampBeforeRegisterOverflow
+
+                        getNewFrameTime:
+
+                            LDR frameTime, [frameTimeAddress]
+                            LDR canBallMove, [canBallMoveAddress]
 
                 B whileTrue
 

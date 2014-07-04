@@ -91,18 +91,16 @@
                                     CMP x, topPaddleLocationRightCornerX
                                         BGE bottomOfTopPaddleMissed
                                         CMP y, topPaddleLocationY
-                                        B revertUpToDown
+                                        MOVEQ ballDirectionY, #1
+                                        BEQ bottomHit
 
                             bottomOfTopPaddleMissed:
 
                                 CMP y, topPaddleLocationY   // is that a score?
                                 BLEQ BottomPlayerScores
-                                BLEQ rightBorderHit
+                                BEQ rightBorderHit
                                 CMP y, #2
-
-                            revertUpToDown:
-
-                                MOVEQ ballDirectionY, #1
+                                BEQ giveTheBallToTheBottomPlayer
 
                         bottomHit:
 
@@ -113,18 +111,16 @@
                                     CMP x, bottomPaddleLocationRightCornerX
                                         BHI topOfBottomPaddleMissed
                                         CMP y, bottomPaddleLocationY
-                                        B revertDownToUp
+                                        MOVEQ ballDirectionY, #0
+                                        BEQ rightBorderHit
 
                             topOfBottomPaddleMissed:
 
                                 CMP y, bottomPaddleLocationY    // is that a score?
                                 BLEQ TopPlayerScores
-                                BLEQ rightBorderHit
+                                BEQ rightBorderHit
                                 CMP y, tableBottomBorder
-
-                            revertDownToUp:
-
-                                MOVEQ ballDirectionY, #0
+                                BEQ giveTheBallToTheTopPlayer
 
                         rightBorderHit:
 
@@ -203,84 +199,31 @@
                         LDR newBallPosition, =BallPositionY
                         STR y, [newBallPosition]
 
-                        .unreq x
-                        .unreq y
-                        .unreq newBallPosition
-                        .unreq ballDirectionX
-                        .unreq ballDirectionY
-                        .unreq tableRightBorder
-                        .unreq tableBottomBorder
-                        .unreq topPaddleLocationLeftCornerX
-                        .unreq topPaddleLocationRightCornerX
-                        .unreq topPaddleLocationY
-                        .unreq bottomPaddleLocationLeftCornerX
-                        .unreq bottomPaddleLocationRightCornerX
-                        .unreq bottomPaddleLocationY
+                        B endOfCollisionDetection
+
+                        giveTheBallToTheBottomPlayer:
+
+                            BL BottomPlayerGetsTheBall
+                            B endOfCollisionDetection
+
+                        giveTheBallToTheTopPlayer:
+
+                            BL TopPlayerGetsTheBall
+
+                        endOfCollisionDetection:
+
+                            .unreq x
+                            .unreq y
+                            .unreq newBallPosition
+                            .unreq ballDirectionX
+                            .unreq ballDirectionY
+                            .unreq tableRightBorder
+                            .unreq tableBottomBorder
+                            .unreq topPaddleLocationLeftCornerX
+                            .unreq topPaddleLocationRightCornerX
+                            .unreq topPaddleLocationY
+                            .unreq bottomPaddleLocationLeftCornerX
+                            .unreq bottomPaddleLocationRightCornerX
+                            .unreq bottomPaddleLocationY
 
                         POP { r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, pc }
-
-    .globl BottomPlayerScores
-    BottomPlayerScores: PUSH { r0, r1, r2, r3, lr }
-
-                        bottomPlayersScoreAddress .req r0
-                        LDR bottomPlayersScoreAddress, =BottomPlayerScore
-
-                        bottomPlayersScore .req r1
-                        LDR bottomPlayersScore, [bottomPlayersScoreAddress]
-                        ADD bottomPlayersScore, #1
-
-                        currentFrameTime .req r2
-                        LDR currentFrameTime, =FrameTime
-
-                        slowFrameTime .req r3
-                        LDR slowFrameTime, =SlowFrameTime
-                        LDR slowFrameTime, [slowFrameTime]
-
-                        STR slowFrameTime, [currentFrameTime]
-
-                        CMP bottomPlayersScore, #9
-                        MOVHI bottomPlayersScore, #0
-
-                        STR bottomPlayersScore, [bottomPlayersScoreAddress]
-
-                        BL DrawScore
-
-                        .unreq bottomPlayersScoreAddress
-                        .unreq bottomPlayersScore
-                        .unreq currentFrameTime
-                        .unreq slowFrameTime
-
-                        POP { r0, r1, r2, r3, pc }
-
-    .globl TopPlayerScores
-    TopPlayerScores:    PUSH { r0, r1, r2, r3, lr }
-
-                        topPlayersScoreAddress .req r0
-                        LDR topPlayersScoreAddress, =TopPlayerScore
-
-                        topPlayersScore .req r1
-                        LDR topPlayersScore, [topPlayersScoreAddress]
-                        ADD topPlayersScore, #1
-
-                        currentFrameTime .req r2
-                        LDR currentFrameTime, =FrameTime
-
-                        slowFrameTime .req r3
-                        LDR slowFrameTime, =SlowFrameTime
-                        LDR slowFrameTime, [slowFrameTime]
-
-                        STR slowFrameTime, [currentFrameTime]
-
-                        CMP topPlayersScore, #9
-                        MOVHI topPlayersScore, #0
-
-                        STR topPlayersScore, [topPlayersScoreAddress]
-
-                        BL DrawScore
-
-                        .unreq topPlayersScoreAddress
-                        .unreq topPlayersScore
-                        .unreq currentFrameTime
-                        .unreq slowFrameTime
-
-                        POP { r0, r1, r2, r3, pc }
