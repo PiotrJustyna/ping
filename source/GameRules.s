@@ -581,3 +581,239 @@
 							BL DrawBottomAvatar
 
                             POP { r0, r1, r2, pc }
+
+    .globl BottomPlayerStartsTheGame
+    BottomPlayerStartsTheGame:	PUSH { r0, r1, r2, lr }
+
+	                            // Resetting ball position
+	                                ballPositionXAddress .req r0
+	                                LDR ballPositionXAddress, =BallPositionX
+
+	                                paddleWidth .req r1
+	                                LDR paddleWidth, =PaddleWidth
+	                                LDR paddleWidth, [paddleWidth]
+	                                LSR paddleWidth, #1
+
+	                                newBallPosition .req r2
+	                                LDR newBallPosition, =BottomPaddleLocationX
+	                                LDR newBallPosition, [newBallPosition]
+	                                ADD newBallPosition, paddleWidth
+
+	                                STR newBallPosition, [ballPositionXAddress]
+
+	                                .unreq ballPositionXAddress
+	                                .unreq paddleWidth
+
+	                                ballPositionYAddress .req r0
+	                                LDR ballPositionYAddress, =BallPositionY
+
+	                                screenHeight .req r1
+		                            LDR screenHeight, =FrameBufferInfo
+		                            LDR screenHeight, [screenHeight, #4]
+
+	                                MOV newBallPosition, screenHeight
+
+	                                .unreq screenHeight
+	                                ballHeight .req r1
+	                                LDR  ballHeight, =BallHeight
+	                                LDR ballHeight, [ballHeight]
+
+	                                SUB newBallPosition, ballHeight
+
+	                                .unreq ballHeight
+
+	                                paddleHeight .req r1
+	                                LDR paddleHeight, =PaddleHeight
+	                                LDR paddleHeight, [paddleHeight]
+	                                LSL paddleHeight, #1
+
+	                                SUB newBallPosition, paddleHeight
+	                                SUB newBallPosition, #1
+	                                STR newBallPosition, [ballPositionYAddress]
+
+	                                .unreq ballPositionYAddress
+	                                .unreq newBallPosition
+	                            // <- Resetting ball position
+
+                                // Resetting ball direction
+                                    ballDirectionXAddress .req r0
+                                    LDR ballDirectionXAddress, =BallDirectionX
+
+                                    newBallDirection, .req r1
+                                    MOV newBallDirection, #0
+
+                                    STR newBallDirection, [ballDirectionXAddress]
+
+                                    .unreq ballDirectionXAddress
+
+
+                                    ballDirectionYAddress .req r0
+                                    LDR ballDirectionYAddress, =BallDirectionY
+
+                                    Str newBallDirection, [ballDirectionYAddress]
+
+                                    .unreq ballDirectionYAddress
+                                    .unreq newBallDirection
+                                // <- Resetting ball direction
+
+                                // Resetting frame time
+                                    currentFrameTime .req r0
+                                    LDR currentFrameTime, =FrameTime
+
+                                    fastFrameTime .req r1
+                                    LDR fastFrameTime, =FastFrameTime
+                                    LDR fastFrameTime, [fastFrameTime]
+
+                                    STR fastFrameTime, [currentFrameTime]
+                                // <- Resetting frame time
+
+                                .unreq currentFrameTime
+                                .unreq fastFrameTime
+
+                                // Setting ball posession
+                                    bottomPlayerPosessionAddress .req r0
+                                    LDR bottomPlayerPosessionAddress, =BottomPlayerHasTheBall
+
+                                    bottomPlayerPosession .req r1
+                                    MOV bottomPlayerPosession, #1
+
+                                    STR bottomPlayerPosession, [bottomPlayerPosessionAddress]
+                                // <- Setting ball posession
+
+                                .unreq bottomPlayerPosessionAddress
+                                .unreq bottomPlayerPosession
+
+		                        canPaddlesMoveAddress .req r0
+		                        LDR canPaddlesMoveAddress, =CanPaddlesMove
+
+		                        canPaddlesMove .req r1
+		                        MOV canPaddlesMove, #1
+
+		                        STR canPaddlesMove, [canPaddlesMoveAddress]
+
+		                        .unreq canPaddlesMoveAddress
+								.unreq canPaddlesMove
+
+		                        canBallMoveAddress .req r0
+		                        LDR canBallMoveAddress, =CanBallMove
+
+		                        canBallMove .req r1
+		                        MOV canBallMove, #0
+
+		                        STR canBallMove, [canBallMoveAddress]
+
+		                        .unreq canBallMoveAddress
+								.unreq canBallMove
+
+                                POP { r0, r1, r2, pc }
+
+    .globl TopPlayerStartsTheGame
+    TopPlayerStartsTheGame:   PUSH { r0, r1, r2, lr }
+
+                            // Resetting ball position
+                                ballPositionXAddress .req r0
+                                LDR ballPositionXAddress, =BallPositionX
+
+                                paddleWidth .req r1
+                                LDR paddleWidth, =PaddleWidth
+                                LDR paddleWidth, [paddleWidth]
+                                LSR paddleWidth, #1
+
+                                newBallPosition .req r2
+                                LDR newBallPosition, =TopPaddleLocationX
+                                LDR newBallPosition, [newBallPosition]
+                                ADD newBallPosition, paddleWidth
+
+                                STR newBallPosition, [ballPositionXAddress]
+
+                                .unreq ballPositionXAddress
+                                .unreq paddleWidth
+
+                                ballPositionYAddress .req r0
+                                LDR ballPositionYAddress, =BallPositionY
+
+                                paddleHeight .req r1
+                                LDR paddleHeight, =PaddleHeight
+                                LDR paddleHeight, [paddleHeight]
+                                LSL paddleHeight, #1
+                                ADD paddleHeight, #2
+
+                                MOV newBallPosition, paddleHeight
+                                STR newBallPosition, [ballPositionYAddress]
+
+                                .unreq ballPositionYAddress
+                                .unreq newBallPosition
+                            // <- Resetting ball position
+
+                            // Resetting ball direction
+                                ballDirectionXAddress .req r0
+                                LDR ballDirectionXAddress, =BallDirectionX
+
+                                newBallDirection, .req r1
+                                MOV newBallDirection, #0
+
+                                STR newBallDirection, [ballDirectionXAddress]
+
+                                .unreq ballDirectionXAddress
+
+
+                                ballDirectionYAddress .req r0
+                                LDR ballDirectionYAddress, =BallDirectionY
+
+                                MOV newBallDirection, #1
+                                STR newBallDirection, [ballDirectionYAddress]
+
+                                .unreq ballDirectionYAddress
+                                .unreq newBallDirection
+                            // <- Resetting ball direction
+
+                            // Resetting frame time
+                                currentFrameTime .req r0
+                                LDR currentFrameTime, =FrameTime
+
+                                fastFrameTime .req r1
+                                LDR fastFrameTime, =FastFrameTime
+                                LDR fastFrameTime, [fastFrameTime]
+
+                                STR fastFrameTime, [currentFrameTime]
+                            // <- Resetting frame time
+
+                            .unreq currentFrameTime
+                            .unreq fastFrameTime
+
+                            // Setting ball posession
+                                topPlayerPosessionAddress .req r0
+                                LDR topPlayerPosessionAddress, =TopPlayerHasTheBall
+
+                                topPlayerPosession .req r1
+                                MOV topPlayerPosession, #1
+
+                                STR topPlayerPosession, [topPlayerPosessionAddress]
+                            // <- Setting ball posession
+
+                            .unreq topPlayerPosessionAddress
+                            .unreq topPlayerPosession
+
+	                        canPaddlesMoveAddress .req r0
+	                        LDR canPaddlesMoveAddress, =CanPaddlesMove
+
+	                        canPaddlesMove .req r1
+	                        MOV canPaddlesMove, #1
+
+	                        STR canPaddlesMove, [canPaddlesMoveAddress]
+
+	                        .unreq canPaddlesMoveAddress
+							.unreq canPaddlesMove
+
+	                        canBallMoveAddress .req r0
+	                        LDR canBallMoveAddress, =CanBallMove
+
+	                        canBallMove .req r1
+	                        MOV canBallMove, #0
+
+	                        STR canBallMove, [canBallMoveAddress]
+
+	                        .unreq canBallMoveAddress
+							.unreq canBallMove
+
+                            POP { r0, r1, r2, pc }

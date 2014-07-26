@@ -55,66 +55,66 @@
     .globl DrawPoint
     DrawPoint:   PUSH { r4, r5, r6, r7, r8, r9, lr }
 
-                    x .req r0
-                    y .req r1
-                    colour .req r2
-                    sizeInPixels .req r3
+                x .req r0
+                y .req r1
+                colour .req r2
+                sizeInPixels .req r3
 
-                    frameBufferInfo .req r4
-                    LDR frameBufferInfo, =FramebufferInfoAddress
-                    LDR frameBufferInfo, [frameBufferInfo]
+                frameBufferInfo .req r4
+                LDR frameBufferInfo, =FramebufferInfoAddress
+                LDR frameBufferInfo, [frameBufferInfo]
 
-                    framebufferAddress .req r5
-                    LDR framebufferAddress, [frameBufferInfo, #32]
+                framebufferAddress .req r5
+                LDR framebufferAddress, [frameBufferInfo, #32]
 
-                    screenWidth .req r6
-                    LDR screenWidth, [frameBufferInfo, #0]
+                screenWidth .req r6
+                LDR screenWidth, [frameBufferInfo, #0]
 
-                    rowCounter .req r7
-                    MOV rowCounter, #0
+                rowCounter .req r7
+                MOV rowCounter, #0
 
-                    columnCounter .req r8
+                columnCounter .req r8
+                MOV columnCounter, #0
+
+                pixelAddress .req r9
+
+                drawPointsRows:
+
+                    drawPointsColumns:
+
+                        MLA pixelAddress, screenWidth, y, x
+                        ADD pixelAddress, pixelAddress
+                        ADD pixelAddress, framebufferAddress
+                        STRH colour, [pixelAddress]
+
+                        ADD x, #1
+                        ADD columnCounter, #1
+                        CMP columnCounter, sizeInPixels
+
+                    BNE drawPointsColumns
+
+                    SUB x, sizeInPixels
                     MOV columnCounter, #0
+                    ADD y, #1
+                    ADD rowCounter, #1
+                    CMP rowCounter, sizeInPixels
 
-                    pixelAddress .req r9
+                BNE drawPointsRows
 
-                    drawPointsRows:
+                SUB y, sizeInPixels
 
-                        drawPointsColumns:
+                .unreq x
+                .unreq y
+                .unreq colour
+                .unreq sizeInPixels
+                .unreq frameBufferInfo
+                .unreq framebufferAddress
+                .unreq screenWidth
+                .unreq rowCounter
+                .unreq columnCounter
+                .unreq pixelAddress           
 
-                            MLA pixelAddress, screenWidth, y, x
-                            ADD pixelAddress, pixelAddress
-                            ADD pixelAddress, framebufferAddress
-                            STRH colour, [pixelAddress]
- 
-                            ADD x, #1
-                            ADD columnCounter, #1
-                            CMP columnCounter, sizeInPixels
-
-                        BNE drawPointsColumns
-
-                        SUB x, sizeInPixels
-                        MOV columnCounter, #0
-                        ADD y, #1
-                        ADD rowCounter, #1
-                        CMP rowCounter, sizeInPixels
-
-                    BNE drawPointsRows
-
-                    SUB y, sizeInPixels
-
-                    .unreq x
-                    .unreq y
-                    .unreq colour
-                    .unreq sizeInPixels
-                    .unreq frameBufferInfo
-                    .unreq framebufferAddress
-                    .unreq screenWidth
-                    .unreq rowCounter
-                    .unreq columnCounter
-                    .unreq pixelAddress           
-
-                    POP { r4, r5, r6, r7, r8, r9, pc }
+                POP { r4, r5, r6, r7, r8, r9, pc }
 
     .globl DrawFrame
     DrawFrame:  PUSH { r0, r1, r2, r3, r4, r5, lr }
@@ -584,3 +584,58 @@
                         .unreq testedRegister
 
                         POP { pc }
+
+    .globl WipeScreen
+    WipeScreen: PUSH { r0, r1, r2, r3, r4, r5, r6, lr }
+
+                x .req r0
+                MOV x, #0
+
+                y .req r1
+                MOV y, #0
+
+                foregroundColour .req r2
+                LDR foregroundColour, =ForegoundColour
+
+                backgroundColour .req r3
+                LDR backgroundColour, =BackgroundColour
+                LDR backgroundColour, [backgroundColour]
+
+                previousForegroundColour .req r4
+                LDR previousForegroundColour, [foregroundColour]
+                STR backgroundColour, [foregroundColour]
+
+                xLimit .req r5
+                MOV xLimit, #1920
+
+                yLimit .req r6
+                LDR yLimit, =1080
+
+                wipeScreenRowsLoop:
+
+                    wipeScreenColumnsLoop:
+
+                        BL DrawPixel
+                        ADD x, #1
+                        CMP x, xLimit
+
+                    BNE wipeScreenColumnsLoop
+
+                    BL DrawPixel
+                    MOV x, #0
+                    ADD y, #1
+                    CMP y, yLimit
+
+                BNE wipeScreenRowsLoop
+
+                STR previousForegroundColour, [foregroundColour]
+
+                .unreq x
+                .unreq y
+                .unreq foregroundColour
+                .unreq backgroundColour
+                .unreq previousForegroundColour
+                .unreq xLimit
+                .unreq yLimit
+
+                POP { r0, r1, r2, r3, r4, r5, r6, pc }

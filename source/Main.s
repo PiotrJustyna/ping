@@ -49,117 +49,171 @@
             // <- Setting background colour
 
             // Drawing
-                x .req r0
-                MOV x, #2
-
-                y .req r1
-                MOV y, #7
-
-                timespan .req r2
-
-                frameTimeAddress .req r3
-                LDR frameTimeAddress, =FrameTime
-
-                timerAddress .req r4
-                LDR timerAddress, =TimerAddress
-                LDR timerAddress, [timerAddress]
-
-                currentTimestamp .req r6
-                LDR currentTimestamp, [timerAddress]
-
-                lastEndTimestampBeforeRegisterOverflow .req r7
-                MOV lastEndTimestampBeforeRegisterOverflow, #0
-                SUB lastEndTimestampBeforeRegisterOverflow, #1
-
-                endTimestamp .req r5
-                xSafeCopy .req r8
-                previousEndTimestamp .req r9
-
-                frameTime .req r10
-                LDR frameTime, [frameTimeAddress]
-
-                canBallMoveAddress .req r11
-                LDR canBallMoveAddress, =CanBallMove
-
-                canBallMove .req r12
-                LDR canBallMove, [canBallMoveAddress]
-
-                MOV endTimestamp, currentTimestamp
-                ADD endTimestamp, frameTime
-
                 BL SetGPIO
-                BL DrawTopPaddle
-                BL DrawBottomPaddle
-                BL DrawFrame
-                BL DrawTopAvatar
-                BL DrawBottomAvatar
-                BL DrawScore
+                BL DrawLandingScreen
 
-                whileTrue:
+                pinLevels .req r2
 
-                    // BL CaptureStartTimestamp
+                checkForUserInputToStartTheGame:
 
-                    //BL WipeBall   // TODO: For now
-                    BL DrawNet
-                    BL MoveTopPaddle
-                    BL MoveBottomPaddle
-                    BL DrawBall
+                    LDR pinLevels, =0x20200034
+                    LDR pinLevels, [pinLevels]
 
-                    CMP canBallMove, #0
-                        BEQ dontDetectCollisions
-                        BL DetectCollisions
+                    // Nasty hack I'm not too proud of. Without it though, controller bit testing below just doesn't work consistently.
+                    MOV r0, #0
+                    LDR r1, =1090
+                    BL DrawWord
+                    // <- Nasty hack I'm not too proud of. Without it though, controller bit testing below just doesn't work consistently.
 
-                    dontDetectCollisions:
+                    TST pinLevels, #(1 << 7)
+                    BEQ checkTopPlayersRightPaddle
+                    B topPlayerStartsTheGame
 
-                        /*
-                        BL CaptureEndTimestamp
-                        MOV xSafeCopy, x
-                        BL MeasureTimespan
-                        MOV timespan, r0
-                        MOV x, xSafeCopy
-                        BL DrawWord
-                        */
+                    checkTopPlayersRightPaddle:
+                        TST pinLevels, #(1 << 8)
+                        BEQ checkBottomPlayersLeftPaddle
+                        B topPlayerStartsTheGame
 
-                        waitForNextFrame:
+                        checkBottomPlayersLeftPaddle:
+                            TST pinLevels, #(1 << 23)
+                            BEQ checkBottomPlayersRightPaddle
+                            B bottomPlayerStartsTheGame
 
-                            LDR currentTimestamp, [timerAddress]
-                            CMP endTimestamp, currentTimestamp
-                            BHI waitForNextFrame                    // not yet time for next frame
-                            BEQ checkLastTickBeforeOverflow         // it's time for next frame, but check if the endTimestamp should be reset to frameTime
-                            B addFrameTime                          // otherwise, it's time for next frame
+                            checkBottomPlayersRightPaddle:
+                                TST pinLevels, #(1 << 24)
+                                BEQ checkForUserInputToStartTheGame
+                                B bottomPlayerStartsTheGame
 
-                            checkLastTickBeforeOverflow:
+                topPlayerStartsTheGame:
 
-                                CMP endTimestamp, lastEndTimestampBeforeRegisterOverflow
-                                MOVEQ endTimestamp, frameTime
+                    BL WipeScreen
+                    BL DrawTopPaddle
+                    BL DrawBottomPaddle
+                    BL TopPlayerStartsTheGame
 
-                            addFrameTime:
+                    B startTheGame
 
-                                MOV previousEndTimestamp, endTimestamp
-                                ADD endTimestamp, frameTime
-                                CMP previousEndTimestamp, endTimestamp                                  // overflow?
-                                    BLS getNewFrameTime                                                 // no - continue
-                                    CMP currentTimestamp, endTimestamp                                  // yes - if endTimestamp is overflown, assign last available 32-bit value instead (all ones)
-                                    MOVHI endTimestamp, lastEndTimestampBeforeRegisterOverflow
+                bottomPlayerStartsTheGame:
 
-                        getNewFrameTime:
+                    BL WipeScreen
+                    BL DrawTopPaddle
+                    BL DrawBottomPaddle
+                    BL BottomPlayerStartsTheGame
 
-                            LDR frameTime, [frameTimeAddress]
-                            LDR canBallMove, [canBallMoveAddress]
+                    B startTheGame
 
-                B whileTrue
+                startTheGame:
 
-                .unreq x
-                .unreq y
-                .unreq timespan
-                .unreq frameTime
-                .unreq timerAddress
-                .unreq endTimestamp
-                .unreq currentTimestamp
-                .unreq xSafeCopy
-                .unreq previousEndTimestamp
-                .unreq lastEndTimestampBeforeRegisterOverflow
-            // <- Drawing
+                    .unreq pinLevels
+
+                    x .req r0
+                    MOV x, #2
+
+                    y .req r1
+                    MOV y, #7
+
+                    timespan .req r2
+
+                    frameTimeAddress .req r3
+                    LDR frameTimeAddress, =FrameTime
+
+                    timerAddress .req r4
+                    LDR timerAddress, =TimerAddress
+                    LDR timerAddress, [timerAddress]
+
+                    currentTimestamp .req r6
+                    LDR currentTimestamp, [timerAddress]
+
+                    lastEndTimestampBeforeRegisterOverflow .req r7
+                    MOV lastEndTimestampBeforeRegisterOverflow, #0
+                    SUB lastEndTimestampBeforeRegisterOverflow, #1
+
+                    endTimestamp .req r5
+                    xSafeCopy .req r8
+                    previousEndTimestamp .req r9
+
+                    frameTime .req r10
+                    LDR frameTime, [frameTimeAddress]
+
+                    canBallMoveAddress .req r11
+                    LDR canBallMoveAddress, =CanBallMove
+
+                    canBallMove .req r12
+                    LDR canBallMove, [canBallMoveAddress]
+
+                    MOV endTimestamp, currentTimestamp
+                    ADD endTimestamp, frameTime
+
+                    BL DrawFrame
+                    BL DrawTopAvatar
+                    BL DrawBottomAvatar
+                    BL DrawScore
+
+                    whileTrue:
+
+                        // BL CaptureStartTimestamp
+
+                        //BL WipeBall   // TODO: For now
+                        BL DrawNet
+                        BL MoveTopPaddle
+                        BL MoveBottomPaddle
+                        BL DrawBall
+
+                        CMP canBallMove, #0
+                            BEQ dontDetectCollisions
+                            BL DetectCollisions
+
+                        dontDetectCollisions:
+
+                            /*
+                            BL CaptureEndTimestamp
+                            MOV xSafeCopy, x
+                            BL MeasureTimespan
+                            MOV timespan, r0
+                            MOV x, xSafeCopy
+                            BL DrawWord
+                            */
+
+                            waitForNextFrame:
+
+                                LDR currentTimestamp, [timerAddress]
+                                CMP endTimestamp, currentTimestamp
+                                BHI waitForNextFrame                    // not yet time for next frame
+                                BEQ checkLastTickBeforeOverflow         // it's time for next frame, but check if the endTimestamp should be reset to frameTime
+                                B addFrameTime                          // otherwise, it's time for next frame
+
+                                checkLastTickBeforeOverflow:
+
+                                    CMP endTimestamp, lastEndTimestampBeforeRegisterOverflow
+                                    MOVEQ endTimestamp, frameTime
+
+                                addFrameTime:
+
+                                    MOV previousEndTimestamp, endTimestamp
+                                    ADD endTimestamp, frameTime
+                                    CMP previousEndTimestamp, endTimestamp                                  // overflow?
+                                        BLS getNewFrameTime                                                 // no - continue
+                                        CMP currentTimestamp, endTimestamp                                  // yes - if endTimestamp is overflown, assign last available 32-bit value instead (all ones)
+                                        MOVHI endTimestamp, lastEndTimestampBeforeRegisterOverflow
+
+                            getNewFrameTime:
+
+                                LDR frameTime, [frameTimeAddress]
+                                LDR canBallMove, [canBallMoveAddress]
+
+                    B whileTrue
+
+                    .unreq x
+                    .unreq y
+                    .unreq timespan
+                    .unreq frameTime
+                    .unreq timerAddress
+                    .unreq endTimestamp
+                    .unreq currentTimestamp
+                    .unreq xSafeCopy
+                    .unreq previousEndTimestamp
+                    .unreq lastEndTimestampBeforeRegisterOverflow
+                // <- Drawing
 
             errorLoop:
             B errorLoop

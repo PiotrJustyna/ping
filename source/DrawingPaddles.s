@@ -408,7 +408,7 @@
 
                                         LDR pinLevels, =0x20200034
                                         LDR pinLevels, [pinLevels]
-                                        LSR pinLevels, #23                                           // Now, checking the 23th pin.
+                                        LSR pinLevels, #23                                          // Now, checking the 23th pin.
                                         TST pinLevels, #1                                           // Is input on pin 23 detected?
                                         BEQ endOfBottomPaddleButtonChecking                         // If not, finish button checking. No more buttons.
                                             BL BottomPlayerShootsRight
