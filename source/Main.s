@@ -151,9 +151,6 @@
 
                     whileTrue:
 
-                        // BL CaptureStartTimestamp
-
-                        //BL WipeBall   // TODO: For now
                         BL DrawNet
                         BL MoveTopPaddle
                         BL MoveBottomPaddle
@@ -164,15 +161,6 @@
                             BL DetectCollisions
 
                         dontDetectCollisions:
-
-                            /*
-                            BL CaptureEndTimestamp
-                            MOV xSafeCopy, x
-                            BL MeasureTimespan
-                            MOV timespan, r0
-                            MOV x, xSafeCopy
-                            BL DrawWord
-                            */
 
                             waitForNextFrame:
 
@@ -215,5 +203,6 @@
                     .unreq lastEndTimestampBeforeRegisterOverflow
                 // <- Drawing
 
+            .globl errorLoop
             errorLoop:
             B errorLoop

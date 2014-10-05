@@ -247,7 +247,7 @@
 								POP { r0, r1, pc }
 
     .globl BottomPlayerScores
-    BottomPlayerScores: PUSH { r0, r1, r2, r3, lr }
+    BottomPlayerScores: PUSH { r0, r1, r2, r3, r4, r5, lr }
 
                         bottomPlayersScoreAddress .req r0
                         LDR bottomPlayersScoreAddress, =BottomPlayerScore
@@ -256,45 +256,64 @@
                         LDR bottomPlayersScore, [bottomPlayersScoreAddress]
                         ADD bottomPlayersScore, #1
 
-                        currentFrameTime .req r2
+                        topPlayerScoreAddress .req r2
+                        LDR topPlayerScoreAddress, =TopPlayerScore
+
+                        topPlayerScore .req r3
+                        LDR topPlayerScore, [topPlayerScoreAddress]
+
+                        currentFrameTime .req r4
                         LDR currentFrameTime, =FrameTime
 
-                        slowFrameTime .req r3
+                        slowFrameTime .req r5
                         LDR slowFrameTime, =SlowFrameTime
                         LDR slowFrameTime, [slowFrameTime]
 
                         STR slowFrameTime, [currentFrameTime]
 
                         CMP bottomPlayersScore, #9
-                        MOVHI bottomPlayersScore, #0
+                        BHI bottomPlayerWonTheGame
+                        B endBottomPlayerScores
 
-                        STR bottomPlayersScore, [bottomPlayersScoreAddress]
+                        bottomPlayerWonTheGame:
 
-                        BL DrawScore
+                            MOV bottomPlayersScore, #0
+                            MOV topPlayerScore, #0
+                            BL WipeTopGameWinningBadge
+                            BL DrawGameWinningBadgeForTheBottomAvatar
 
-                        .unreq bottomPlayersScoreAddress
-                        .unreq bottomPlayersScore
-                        .unreq currentFrameTime
-                        .unreq slowFrameTime
+                        endBottomPlayerScores:
 
-                        canPaddlesMoveAddress .req r0
-                        LDR canPaddlesMoveAddress, =CanPaddlesMove
+                            STR bottomPlayersScore, [bottomPlayersScoreAddress]
+                            STR topPlayerScore, [topPlayerScoreAddress]
 
-                        canPaddlesMove .req r1
-                        MOV canPaddlesMove, #0
+                            BL DrawScore
 
-                        STR canPaddlesMove, [canPaddlesMoveAddress]
+                            .unreq bottomPlayersScoreAddress
+                            .unreq bottomPlayersScore
+                            .unreq topPlayerScoreAddress
+                            .unreq topPlayerScore
+                            .unreq currentFrameTime
+                            .unreq slowFrameTime
 
-                        .unreq canPaddlesMoveAddress
-						.unreq canPaddlesMove
+                            canPaddlesMoveAddress .req r0
+                            LDR canPaddlesMoveAddress, =CanPaddlesMove
 
-						BL DrawBottomAvatarWinning
-						BL DrawTopAvatarLosing
+                            canPaddlesMove .req r1
+                            MOV canPaddlesMove, #0
 
-                        POP { r0, r1, r2, r3, pc }
+                            STR canPaddlesMove, [canPaddlesMoveAddress]
+
+                            .unreq canPaddlesMoveAddress
+    						.unreq canPaddlesMove
+
+    						BL DrawBottomAvatarWinning
+    						BL DrawTopAvatarLosing
+
+                            POP { r0, r1, r2, r3, r4, r5, pc }
 
     .globl TopPlayerScores
-    TopPlayerScores:    PUSH { r0, r1, r2, r3, lr }
+    TopPlayerScores:    PUSH { r0, r1, r2, r3, r4, r5, lr }
 
                         topPlayersScoreAddress .req r0
                         LDR topPlayersScoreAddress, =TopPlayerScore
@@ -303,42 +322,61 @@
                         LDR topPlayersScore, [topPlayersScoreAddress]
                         ADD topPlayersScore, #1
 
-                        currentFrameTime .req r2
+                        bottomPlayersScoreAddress .req r2
+                        LDR bottomPlayersScoreAddress, =BottomPlayerScore
+
+                        bottomPlayersScore .req r3
+                        LDR bottomPlayersScore, [bottomPlayersScoreAddress]
+
+                        currentFrameTime .req r4
                         LDR currentFrameTime, =FrameTime
 
-                        slowFrameTime .req r3
+                        slowFrameTime .req r5
                         LDR slowFrameTime, =SlowFrameTime
                         LDR slowFrameTime, [slowFrameTime]
 
                         STR slowFrameTime, [currentFrameTime]
 
                         CMP topPlayersScore, #9
-                        MOVHI topPlayersScore, #0
+                        BHI topPlayerWonTheGame
+                        B endTopPlayerScores
 
-                        STR topPlayersScore, [topPlayersScoreAddress]
+                        topPlayerWonTheGame:
 
-                        BL DrawScore
+                            MOV topPlayersScore, #0
+                            MOV bottomPlayersScore, #0
+                            BL WipeBottomGameWinningBadge
+                            BL DrawGameWinningBadgeForTheTopAvatar
 
-                        .unreq topPlayersScoreAddress
-                        .unreq topPlayersScore
-                        .unreq currentFrameTime
-                        .unreq slowFrameTime
+                        endTopPlayerScores:
 
-                        canPaddlesMoveAddress .req r0
-                        LDR canPaddlesMoveAddress, =CanPaddlesMove
+                            STR topPlayersScore, [topPlayersScoreAddress]
+                            STR bottomPlayersScore, [bottomPlayersScoreAddress]
 
-                        canPaddlesMove .req r1
-                        MOV canPaddlesMove, #0
+                            BL DrawScore
 
-                        STR canPaddlesMove, [canPaddlesMoveAddress]
+                            .unreq topPlayersScoreAddress
+                            .unreq topPlayersScore
+                            .unreq bottomPlayersScoreAddress
+                            .unreq bottomPlayersScore
+                            .unreq currentFrameTime
+                            .unreq slowFrameTime
 
-                        .unreq canPaddlesMoveAddress
-						.unreq canPaddlesMove
+                            canPaddlesMoveAddress .req r0
+                            LDR canPaddlesMoveAddress, =CanPaddlesMove
 
-						BL DrawBottomAvatarLosing
-						BL DrawTopAvatarWinning
+                            canPaddlesMove .req r1
+                            MOV canPaddlesMove, #0
 
-                        POP { r0, r1, r2, r3, pc }
+                            STR canPaddlesMove, [canPaddlesMoveAddress]
+
+                            .unreq canPaddlesMoveAddress
+    						.unreq canPaddlesMove
+
+    						BL DrawBottomAvatarLosing
+    						BL DrawTopAvatarWinning
+
+                            POP { r0, r1, r2, r3, r4, r5, pc }
 
     .globl BottomPlayerGetsTheBall
     BottomPlayerGetsTheBall:    PUSH { r0, r1, r2, lr }
